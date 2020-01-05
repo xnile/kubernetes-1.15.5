@@ -283,6 +283,7 @@ func (rc *reconciler) attachDesiredVolumes() {
 		if klog.V(5) {
 			klog.Infof(volumeToAttach.GenerateMsgDetailed("Starting attacherDetacher.AttachVolume", ""))
 		}
+		//@xnile Do Attach Volume
 		err := rc.attacherDetacher.AttachVolume(volumeToAttach.VolumeToAttach, rc.actualStateOfWorld)
 		if err == nil {
 			klog.Infof(volumeToAttach.GenerateMsgDetailed("attacherDetacher.AttachVolume started", ""))

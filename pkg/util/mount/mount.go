@@ -146,6 +146,7 @@ type SafeFormatAndMount struct {
 // read-only it will format it first then mount it. Otherwise, if the
 // disk is already formatted or it is being mounted as read-only, it
 // will be mounted without formatting.
+// @xnile 格式化并挂载
 func (mounter *SafeFormatAndMount) FormatAndMount(source string, target string, fstype string, options []string) error {
 	return mounter.formatAndMount(source, target, fstype, options)
 }

@@ -59,7 +59,7 @@ const (
 
 	// MountsInGlobalPDPath is name of the directory appended to a volume plugin
 	// name to create the place for volume mounts in the global PD path.
-	MountsInGlobalPDPath = "mounts"
+	MountsInGlobalPDPath = "mounts" //@xnile  全局挂载目录
 
 	// VolumeGidAnnotationKey is the of the annotation on the PersistentVolume
 	// object that specifies a supplemental GID.

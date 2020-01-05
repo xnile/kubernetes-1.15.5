@@ -330,6 +330,7 @@ func (og *operationGenerator) GenerateAttachVolumeFunc(
 		}
 
 		// Execute attach
+		// @xnile 调用volume插件执行挂载动作
 		devicePath, attachErr := volumeAttacher.Attach(
 			volumeToAttach.VolumeSpec, volumeToAttach.NodeName)
 
@@ -653,6 +654,7 @@ func (og *operationGenerator) GenerateMountVolumeFunc(
 			}
 
 			// Mount device to global mount path
+			// @将磁盘附加到全局目录
 			err = volumeDeviceMounter.MountDevice(
 				volumeToMount.VolumeSpec,
 				devicePath,
@@ -695,6 +697,7 @@ func (og *operationGenerator) GenerateMountVolumeFunc(
 		}
 
 		// Execute mount
+		// @xnile 执行挂载
 		mountErr := volumeMounter.SetUp(volume.MounterArgs{
 			FsGroup:     fsGroup,
 			DesiredSize: volumeToMount.DesiredSizeLimit,
