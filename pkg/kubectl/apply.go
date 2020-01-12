@@ -138,6 +138,7 @@ func CreateApplyAnnotation(obj runtime.Object, codec runtime.Encoder) error {
 // CreateOrUpdateAnnotation creates the annotation used by
 // kubectl apply only when createAnnotation is true
 // Otherwise, only update the annotation when it already exists
+// @xnile 更新注解
 func CreateOrUpdateAnnotation(createAnnotation bool, obj runtime.Object, codec runtime.Encoder) error {
 	if createAnnotation {
 		return CreateApplyAnnotation(obj, codec)

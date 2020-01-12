@@ -62,6 +62,7 @@ type ResourceMapping interface {
 
 // Info contains temporary info to execute a REST call, or show the results
 // of an already completed REST call.
+// @xnile
 type Info struct {
 	// Client will only be present if this builder was not local
 	Client RESTClient
@@ -74,6 +75,7 @@ type Info struct {
 
 	// Optional, Source is the filename or URL to template file (.json or .yaml),
 	// or stdin to use to handle the resource
+	// @xnile YAML文件
 	Source string
 	// Optional, this is the most recent value returned by the server if available. It will
 	// typically be in unstructured or internal forms, depending on how the Builder was
@@ -568,6 +570,7 @@ func NewStreamVisitor(r io.Reader, mapper *mapper, source string, schema Content
 }
 
 // Visit implements Visitor over a stream. StreamVisitor is able to distinct multiple resources in one stream.
+// @xnile 处理YAML文件
 func (v *StreamVisitor) Visit(fn VisitorFunc) error {
 	d := yaml.NewYAMLOrJSONDecoder(v.Reader, 4096)
 	for {

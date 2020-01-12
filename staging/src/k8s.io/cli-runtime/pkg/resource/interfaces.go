@@ -91,6 +91,7 @@ type ContentValidator interface {
 }
 
 // Visitor lets clients walk a list of resources.
+// @xnile Visitor 设计模式
 type Visitor interface {
 	Visit(VisitorFunc) error
 }
@@ -100,4 +101,5 @@ type Visitor interface {
 // will describe the problem and the function can decide how to handle that error.
 // A nil returned indicates to accept an error to continue loops even when errors happen.
 // This is useful for ignoring certain kinds of errors or aggregating errors in some way.
+// @xnile 回调
 type VisitorFunc func(*Info, error) error
