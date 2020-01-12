@@ -108,6 +108,7 @@ func (m *Helper) DeleteWithOptions(namespace, name string, options *metav1.Delet
 		Get()
 }
 
+// @xnile 提交post
 func (m *Helper) Create(namespace string, modify bool, obj runtime.Object, options *metav1.CreateOptions) (runtime.Object, error) {
 	if options == nil {
 		options = &metav1.CreateOptions{}

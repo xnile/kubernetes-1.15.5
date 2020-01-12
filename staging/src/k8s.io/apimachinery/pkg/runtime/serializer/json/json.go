@@ -106,6 +106,7 @@ type customNumberDecoder struct {
 }
 
 func (customNumberDecoder) Decode(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+
 	switch iter.WhatIsNext() {
 	case jsoniter.NumberValue:
 		var number jsoniter.Number

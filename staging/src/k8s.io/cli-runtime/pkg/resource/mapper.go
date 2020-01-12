@@ -22,6 +22,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/klog"  //@xnile
 )
 
 // Mapper is a convenience struct for holding references to the interfaces
@@ -39,7 +40,11 @@ type mapper struct {
 // if any of the decoding or client lookup steps fail. Name and namespace will be
 // set into Info if the mapping's MetadataAccessor can retrieve them.
 func (m *mapper) infoForData(data []byte, source string) (*Info, error) {
+	klog.Info("xnile-mapper:%#v",m.decoder)
+	// klog.Info("xnile-data:%#v",data)
 	obj, gvk, err := m.decoder.Decode(data, nil, nil)
+	klog.Info("xnile:%#v",obj)
+
 	if err != nil {
 		return nil, fmt.Errorf("unable to decode %q: %v", source, err)
 	}

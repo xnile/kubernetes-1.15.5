@@ -589,7 +589,10 @@ func (v *StreamVisitor) Visit(fn VisitorFunc) error {
 		if err := ValidateSchema(ext.Raw, v.Schema); err != nil {
 			return fmt.Errorf("error validating %q: %v", v.Source, err)
 		}
+		//@xnile infoForData
 		info, err := v.infoForData(ext.Raw, v.Source)
+		// fmt.Println("xnile#info:",info)
+		// fmt.Printf("xnile#info-p:%#v",info)
 		if err != nil {
 			if fnErr := fn(info, err); fnErr != nil {
 				return fnErr

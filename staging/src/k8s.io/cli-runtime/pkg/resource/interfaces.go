@@ -91,7 +91,7 @@ type ContentValidator interface {
 }
 
 // Visitor lets clients walk a list of resources.
-// @xnile Visitor 设计模式
+// @xnile Visitor 访问者接口
 type Visitor interface {
 	Visit(VisitorFunc) error
 }
