@@ -44,6 +44,7 @@ func main() {
 		panic(err.Error())
 	}
 
+	// f, err := os.Open("xnile.yaml")
 	f, err := os.Open("namespace.yaml")
 	if err != nil {
 		log.Fatal(err)
@@ -72,10 +73,12 @@ func main() {
 		versions := &runtime.VersionedObjects{}
 		//_, gvk, err := objectdecoder.Decode(ext.Raw,nil,versions)
 		obj, gvk, err := unstructured.UnstructuredJSONScheme.Decode(ext.Raw, nil, versions)
+		fmt.Printf("gvk: %+v\n", gvk)
 		fmt.Printf("obj: %+v\n", obj)
 
 		// https://github.com/kubernetes/apimachinery/blob/master/pkg/api/meta/interfaces.go
 		mapping, err := restMapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+		fmt.Printf("resource:%+v\n", mapping.Resource)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -91,27 +94,27 @@ func main() {
 			log.Fatal(err)
 		}
 
-		// https://github.com/kubernetes/client-go/blob/master/discovery/discovery_client.go
-		apiresourcelist, err := dd.ServerResources()
-		// fmt.Printf("xnile:%+v", apiresourcelist)
-		if err != nil {
-			log.Fatal(err)
-		}
+		// // https://github.com/kubernetes/client-go/blob/master/discovery/discovery_client.go
+		// apiresourcelist, err := dd.ServerResources()
+		// // fmt.Printf("xnile:%+v", apiresourcelist)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
-		resource := schema.GroupVersionResource{Group: "gtest", Version: "vtest", Resource: "rtest"}
-		var myapiresource metav1.APIResource
-		for _, apiresourcegroup := range apiresourcelist {
-			if apiresourcegroup.GroupVersion == mapping.GroupVersionKind.Version {
-				for _, apiresource := range apiresourcegroup.APIResources {
-					fmt.Println(apiresource)
+		// resource := schema.GroupVersionResource{Group: "gtest", Version: "vtest", Resource: "rtest"}
+		// var myapiresource metav1.APIResource
+		// for _, apiresourcegroup := range apiresourcelist {
+		// 	if apiresourcegroup.GroupVersion == mapping.GroupVersionKind.Version {
+		// 		for _, apiresource := range apiresourcegroup.APIResources {
+		// 			fmt.Println(apiresource)
 
-					// if apiresource.Name == mapping.Resource && apiresource.Kind == mapping.GroupVersionKind.Kind {
-					// 	myapiresource = apiresource
-					// }
-				}
-			}
-		}
-		fmt.Println(myapiresource)
+		// 			// if apiresource.Name == mapping.Resource && apiresource.Kind == mapping.GroupVersionKind.Kind {
+		// 			// 	myapiresource = apiresource
+		// 			// }
+		// 		}
+		// 	}
+		// }
+		// fmt.Println(myapiresource)
 		// https://github.com/kubernetes/client-go/blob/master/dynamic/client.go
 
 		var unstruct unstructured.Unstructured
@@ -129,9 +132,14 @@ func main() {
 				ns = internalns.(string)
 			}
 		}
+
+		fmt.Println(ns)
+
+		// esource schema.GroupVersionResource
 		// res := dclient.Resource(&myapiresource, ns)
 		// res, _ := cl.Resource(myapiresource).Namespace(ns).Create(obj, metav1.CreateOptions{}, tc.subresource...)
-		res, err := dclient.Resource(resource).Namespace(ns).Create(&unstruct, metav1.CreateOptions{})
+		res, err := dclient.Resource(mapping.Resource).Namespace(ns).Create(&unstruct, metav1.CreateOptions{})
+		// res, err := dclient.Resource(mapping.Resource).Create(&unstruct, metav1.CreateOptions{})
 		// res := dclient.Resource(&myapiresource).Name(ns)
 		// fmt.Println(res)
 		// us, err := res.Create(&unstruct)
