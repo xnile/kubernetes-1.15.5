@@ -14,7 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
+	// "k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	// "k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -44,8 +44,8 @@ func main() {
 		panic(err.Error())
 	}
 
-	// f, err := os.Open("xnile.yaml")
-	f, err := os.Open("namespace.yaml")
+	f, err := os.Open("xnile.yaml")
+	// f, err := os.Open("namespace.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,26 +70,28 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println("raw: ", string(ext.Raw))
-		versions := &runtime.VersionedObjects{}
+		// versions := &runtime.VersionedObjects{}
 		//_, gvk, err := objectdecoder.Decode(ext.Raw,nil,versions)
-		obj, gvk, err := unstructured.UnstructuredJSONScheme.Decode(ext.Raw, nil, versions)
+		obj, gvk, err := unstructured.UnstructuredJSONScheme.Decode(ext.Raw, nil, nil)
 		fmt.Printf("gvk: %+v\n", gvk)
+		fmt.Printf("gvk.Version: %+v\n", gvk.Version)
 		fmt.Printf("obj: %+v\n", obj)
 
 		// https://github.com/kubernetes/apimachinery/blob/master/pkg/api/meta/interfaces.go
 		mapping, err := restMapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-		fmt.Printf("resource:%+v\n", mapping.Resource)
+		fmt.Printf("mapping:%+v\n", mapping)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		restconfig := config
-		restconfig.GroupVersion = &schema.GroupVersion{
-			Group:   mapping.GroupVersionKind.Group,
-			Version: mapping.GroupVersionKind.Version,
-		}
+		// restconfig := config
+		// restconfig.GroupVersion = &schema.GroupVersion{
+		// 	Group:   mapping.GroupVersionKind.Group,
+		// 	Version: mapping.GroupVersionKind.Version,
+		// }
+
 		// dclient, err := dynamic.NewClient(restconfig)
-		dclient, err := dynamic.NewForConfig(restconfig)
+		dclient, err := dynamic.NewForConfig(config)
 		if err != nil {
 			log.Fatal(err)
 		}

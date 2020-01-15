@@ -81,6 +81,7 @@ type dynamicResourceClient struct {
 	resource  schema.GroupVersionResource
 }
 
+//@xnile 动态客户端
 func (c *dynamicClient) Resource(resource schema.GroupVersionResource) NamespaceableResourceInterface {
 	return &dynamicResourceClient{client: c, resource: resource}
 }
@@ -93,6 +94,9 @@ func (c *dynamicResourceClient) Namespace(ns string) ResourceInterface {
 
 func (c *dynamicResourceClient) Create(obj *unstructured.Unstructured, opts metav1.CreateOptions, subresources ...string) (*unstructured.Unstructured, error) {
 	outBytes, err := runtime.Encode(unstructured.UnstructuredJSONScheme, obj)
+	fmt.Printf("xnile obj: %+v", obj)
+	fmt.Printf("xnile outBytes: %+v", outBytes)
+
 	if err != nil {
 		return nil, err
 	}

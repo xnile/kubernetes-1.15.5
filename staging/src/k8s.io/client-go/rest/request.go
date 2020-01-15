@@ -711,6 +711,8 @@ func (r *Request) request(fn func(*http.Request, *http.Response)) error {
 	for {
 		url := r.URL().String()
 		req, err := http.NewRequest(r.verb, url, r.body)
+		// @xnile
+		// fmt.Printf("xnile body: %+v\n", r.body)
 		if err != nil {
 			return err
 		}
@@ -794,6 +796,7 @@ func (r *Request) request(fn func(*http.Request, *http.Response)) error {
 	}
 }
 
+//@xnile 执行API请求
 // Do formats and executes the request. Returns a Result object for easy response
 // processing.
 //
