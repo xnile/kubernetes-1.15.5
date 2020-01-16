@@ -54,6 +54,7 @@ func (m *mapper) infoForData(data []byte, source string) (*Info, error) {
 	namespace, _ := metadataAccessor.Namespace(obj)
 	resourceVersion, _ := metadataAccessor.ResourceVersion(obj)
 
+	//@xnile k8s.io/cli-runtime/pkg/resource/visitor.go
 	ret := &Info{
 		Source:          source,
 		Namespace:       namespace,

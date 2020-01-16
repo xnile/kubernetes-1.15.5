@@ -75,7 +75,7 @@ type Info struct {
 
 	// Optional, Source is the filename or URL to template file (.json or .yaml),
 	// or stdin to use to handle the resource
-	// @xnile YAML文件
+	// @xnile 源文件
 	Source string
 	// Optional, this is the most recent value returned by the server if available. It will
 	// typically be in unstructured or internal forms, depending on how the Builder was
