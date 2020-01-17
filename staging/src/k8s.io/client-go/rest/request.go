@@ -1,3 +1,4 @@
+// @xnile 最终以Resetful的方式与API Server交互
 /*
 Copyright 2014 The Kubernetes Authors.
 
@@ -380,6 +381,7 @@ func (r *Request) Body(obj interface{}) *Request {
 	}
 	switch t := obj.(type) {
 	case string:
+		fmt.Println("----t", t)
 		data, err := ioutil.ReadFile(t)
 		if err != nil {
 			r.err = err
@@ -388,11 +390,14 @@ func (r *Request) Body(obj interface{}) *Request {
 		glogBody("Request Body", data)
 		r.body = bytes.NewReader(data)
 	case []byte:
+		fmt.Println("------byte")
 		glogBody("Request Body", t)
 		r.body = bytes.NewReader(t)
 	case io.Reader:
+		fmt.Println("------Reader")
 		r.body = t
 	case runtime.Object:
+		fmt.Println("------runtime.Object")
 		// callers may pass typed interface pointers, therefore we must check nil with reflection
 		if reflect.ValueOf(t).IsNil() {
 			return r
