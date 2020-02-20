@@ -358,6 +358,7 @@ func (s *ServiceController) syncLoadBalancerIfNeeded(service *v1.Service, key st
 	return op, nil
 }
 
+// @xnile 调用cloud api添加负载均衡器
 func (s *ServiceController) ensureLoadBalancer(service *v1.Service) (*v1.LoadBalancerStatus, error) {
 	nodes, err := s.nodeLister.ListWithPredicate(getNodeConditionPredicate())
 	if err != nil {
@@ -589,6 +590,8 @@ func nodeSlicesEqualForLB(x, y []*v1.Node) bool {
 	return nodeNames(x).Equal(nodeNames(y))
 }
 
+// @xnile 目标Node过滤函数
+// 函数签名在client-go/listers/core/v1/node_expansion.go
 func getNodeConditionPredicate() corelisters.NodeConditionPredicate {
 	return func(node *v1.Node) bool {
 		// We add the master to the node list, but its unschedulable.  So we use this to filter

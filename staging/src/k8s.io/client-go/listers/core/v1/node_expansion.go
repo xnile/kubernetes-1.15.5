@@ -23,6 +23,7 @@ import (
 
 // NodeConditionPredicate is a function that indicates whether the given node's conditions meet
 // some set of criteria defined by the function.
+// @xnile node 过滤函数
 type NodeConditionPredicate func(node *v1.Node) bool
 
 // NodeListerExpansion allows custom methods to be added to
@@ -30,7 +31,7 @@ type NodeConditionPredicate func(node *v1.Node) bool
 type NodeListerExpansion interface {
 	ListWithPredicate(predicate NodeConditionPredicate) ([]*v1.Node, error)
 }
-
+ 
 func (l *nodeLister) ListWithPredicate(predicate NodeConditionPredicate) ([]*v1.Node, error) {
 	nodes, err := l.List(labels.Everything())
 	if err != nil {
