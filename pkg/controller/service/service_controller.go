@@ -606,6 +606,7 @@ func getNodeConditionPredicate() corelisters.NodeConditionPredicate {
 			return false
 		}
 
+		// ServiceNodeExclusion：启用从云提供商创建的负载均衡器中排除节点。如果节点标记有 alpha.service-controller.kubernetes.io/exclude-balancer 键（启用 LegacyNodeRoleBehavior 时）或 node.kubernetes.io/exclude-from-external-load-balancers，则可以排除节点。
 		if utilfeature.DefaultFeatureGate.Enabled(kubefeatures.ServiceNodeExclusion) {
 			if _, hasExcludeBalancerLabel := node.Labels[LabelNodeRoleExcludeBalancer]; hasExcludeBalancerLabel {
 				return false
