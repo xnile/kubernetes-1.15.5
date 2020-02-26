@@ -345,6 +345,7 @@ func (s *ServiceController) syncLoadBalancerIfNeeded(service *v1.Service, key st
 		s.eventRecorder.Event(service, v1.EventTypeNormal, "EnsuredLoadBalancer", "Ensured load balancer")
 	}
 
+	//@ xnile 更新状态
 	if err := s.patchStatus(service, previousStatus, newStatus); err != nil {
 		// Only retry error that isn't not found:
 		// - Not found error mostly happens when service disappears right after
@@ -811,6 +812,7 @@ func (s *ServiceController) patchStatus(service *v1.Service, previousStatus, new
 	}
 
 	// Make a copy so we don't mutate the shared informer cache.
+	// @xnile 深拷贝
 	updated := service.DeepCopy()
 	updated.Status.LoadBalancer = *newStatus
 

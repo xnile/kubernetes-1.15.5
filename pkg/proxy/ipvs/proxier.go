@@ -1585,6 +1585,7 @@ func (proxier *Proxier) syncService(svcName string, vs *utilipvs.VirtualServer, 
 	return nil
 }
 
+// @xnile OnlyNodeLocalEndpoints 是否保留原ip，即: externaltrafficpolicy=local
 func (proxier *Proxier) syncEndpoint(svcPortName proxy.ServicePortName, onlyNodeLocalEndpoints bool, vs *utilipvs.VirtualServer) error {
 	appliedVirtualServer, err := proxier.ipvs.GetVirtualServer(vs)
 	if err != nil || appliedVirtualServer == nil {
@@ -1607,6 +1608,7 @@ func (proxier *Proxier) syncEndpoint(svcPortName proxy.ServicePortName, onlyNode
 	}
 
 	for _, epInfo := range proxier.endpointsMap[svcPortName] {
+		//@xnile externaltrafficpolicy=local
 		if onlyNodeLocalEndpoints && !epInfo.GetIsLocal() {
 			continue
 		}
