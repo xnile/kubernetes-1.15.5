@@ -41,6 +41,7 @@ import (
 type BaseEndpointInfo struct {
 	Endpoint string // TODO: should be an endpointString type
 	// IsLocal indicates whether the endpoint is running in same host as kube-proxy.
+	// @xnile IsLocal pod是否在运行在本地
 	IsLocal bool
 }
 
@@ -261,6 +262,7 @@ func (ect *EndpointChangeTracker) endpointsToEndpointsMap(endpoints *v1.Endpoint
 					utilproxy.LogAndEmitIncorrectIPVersionEvent(ect.recorder, "endpoints", addr.IP, endpoints.Name, endpoints.Namespace, "")
 					continue
 				}
+				// @xnile 判断pod是否在本机,kube-proxy运行的机器
 				isLocal := addr.NodeName != nil && *addr.NodeName == ect.hostname
 				baseEndpointInfo := newBaseEndpointInfo(addr.IP, int(port.Port), isLocal)
 				if ect.makeEndpointInfo != nil {

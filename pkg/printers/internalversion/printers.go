@@ -890,6 +890,7 @@ func loadBalancerStatusStringer(s api.LoadBalancerStatus, wide bool) string {
 	return r
 }
 
+// @xnile 获取ExternalIP，kubect get svc EXTERNAL-IP
 func getServiceExternalIP(svc *api.Service, wide bool) string {
 	switch svc.Spec.Type {
 	case api.ServiceTypeClusterIP:

@@ -3167,6 +3167,11 @@ type ServiceStatus struct {
 }
 
 // LoadBalancerStatus represents the status of a load-balancer
+// @xnile  LoadBalancer类型负载均衡状态
+// status:
+//   loadBalancer:
+//     ingress:
+//     - ip: 47.103.189.254
 type LoadBalancerStatus struct {
 	// Ingress is a list containing ingress points for the load-balancer;
 	// traffic intended for the service should be sent to these ingress points.
