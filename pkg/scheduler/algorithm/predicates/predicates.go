@@ -761,6 +761,7 @@ func podName(pod *v1.Pod) string {
 // PodFitsResources checks if a node has sufficient resources, such as cpu, memory, gpu, opaque int resources etc to run a pod.
 // First return value indicates whether a node has sufficient resources to run a pod while the second return value indicates the
 // predicate failure reasons if the node has insufficient resources to run the pod.
+// @xnile 检查节点剩余资源(CPU、内存)是否能满足 Pod 的需求。剩余资源=总容量-所有 Pod 请求的资源；
 func PodFitsResources(pod *v1.Pod, meta PredicateMetadata, nodeInfo *schedulernodeinfo.NodeInfo) (bool, []PredicateFailureReason, error) {
 	node := nodeInfo.Node()
 	if node == nil {
@@ -1565,6 +1566,7 @@ func isPodBestEffort(pod *v1.Pod) bool {
 
 // CheckNodeMemoryPressurePredicate checks if a pod can be scheduled on a node
 // reporting memory pressure condition.
+// @xnile 检查Pod是否可以调度到存在内存压力的节点
 func CheckNodeMemoryPressurePredicate(pod *v1.Pod, meta PredicateMetadata, nodeInfo *schedulernodeinfo.NodeInfo) (bool, []PredicateFailureReason, error) {
 	var podBestEffort bool
 	if predicateMeta, ok := meta.(*predicateMetadata); ok {
@@ -1579,6 +1581,7 @@ func CheckNodeMemoryPressurePredicate(pod *v1.Pod, meta PredicateMetadata, nodeI
 	}
 
 	// check if node is under memory pressure
+	// @xnile
 	if nodeInfo.MemoryPressureCondition() == v1.ConditionTrue {
 		return false, []PredicateFailureReason{ErrNodeUnderMemoryPressure}, nil
 	}

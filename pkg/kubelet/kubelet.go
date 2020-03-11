@@ -570,10 +570,12 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 		klog.Infof("Experimental host user namespace defaulting is enabled.")
 	}
 
+	// @xnile
 	machineInfo, err := klet.cadvisor.MachineInfo()
 	if err != nil {
 		return nil, err
 	}
+	// @xnile
 	klet.machineInfo = machineInfo
 
 	imageBackOff := flowcontrol.NewBackOff(backOffPeriod, MaxContainerBackOff)
@@ -993,6 +995,7 @@ type Kubelet struct {
 	configMapManager configmap.Manager
 
 	// Cached MachineInfo returned by cadvisor.
+	// @xnile
 	machineInfo *cadvisorapi.MachineInfo
 
 	// Handles certificate rotations.

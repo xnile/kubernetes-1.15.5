@@ -85,6 +85,7 @@ func (sched *Scheduler) onServiceDelete(obj interface{}) {
 	sched.config.SchedulingQueue.MoveAllToActiveQueue()
 }
 
+// @xnile
 func (sched *Scheduler) addNodeToCache(obj interface{}) {
 	node, ok := obj.(*v1.Node)
 	if !ok {

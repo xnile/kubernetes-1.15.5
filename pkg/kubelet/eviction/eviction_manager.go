@@ -198,6 +198,7 @@ func (m *managerImpl) Start(diskInfoProvider DiskInfoProvider, podFunc ActivePod
 }
 
 // IsUnderMemoryPressure returns true if the node is under memory pressure.
+// @xnile 返回Node内存是否存在压力
 func (m *managerImpl) IsUnderMemoryPressure() bool {
 	m.RLock()
 	defer m.RUnlock()

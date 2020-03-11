@@ -251,6 +251,7 @@ func NewFromConfig(config *factory.Config) *Scheduler {
 }
 
 // Run begins watching and scheduling. It waits for cache to be synced, then starts a goroutine and returns immediately.
+// @xnile Run 函数 启动一个协程，循环反复执行 Scheduler.scheduleOne 方法，直到收到中止的信号。
 func (sched *Scheduler) Run() {
 	if !sched.config.WaitForCacheSync() {
 		return
@@ -280,6 +281,7 @@ func (sched *Scheduler) recordSchedulingFailure(pod *v1.Pod, err error, reason s
 
 // schedule implements the scheduling algorithm and returns the suggested result(host,
 // evaluated nodes number,feasible nodes number).
+// @xnile schedule 根据调度算法，得到待调度的节点
 func (sched *Scheduler) schedule(pod *v1.Pod) (core.ScheduleResult, error) {
 	result, err := sched.config.Algorithm.Schedule(pod, sched.config.NodeLister)
 	if err != nil {
@@ -439,6 +441,7 @@ func (sched *Scheduler) bind(assumed *v1.Pod, b *v1.Binding) error {
 }
 
 // scheduleOne does the entire scheduling workflow for a single pod.  It is serialized on the scheduling algorithm's host fitting.
+// @xnile 入口
 func (sched *Scheduler) scheduleOne() {
 	fwk := sched.config.Framework
 
@@ -458,6 +461,7 @@ func (sched *Scheduler) scheduleOne() {
 	// Synchronously attempt to find a fit for the pod.
 	start := time.Now()
 	pluginContext := framework.NewPluginContext()
+	// @xnile 调度 通过调度算法，得到待调度的节点
 	scheduleResult, err := sched.schedule(pod)
 	if err != nil {
 		// schedule() may have failed because the pod would not fit on any host, so we try to

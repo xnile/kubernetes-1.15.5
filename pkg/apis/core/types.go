@@ -3714,6 +3714,7 @@ const (
 	NodeTerminated NodePhase = "Terminated"
 )
 
+// @xnile 节点conditions
 type NodeConditionType string
 
 // These are valid conditions of node. Currently, we don't have enough information to decide

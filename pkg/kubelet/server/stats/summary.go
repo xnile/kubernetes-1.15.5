@@ -72,6 +72,7 @@ func (sp *summaryProviderImpl) Get(updateStats bool) (*statsapi.Summary, error) 
 		return nil, fmt.Errorf("failed to get node info: %v", err)
 	}
 	nodeConfig := sp.provider.GetNodeConfig()
+	// @xnile
 	rootStats, networkStats, err := sp.provider.GetCgroupStats("/", updateStats)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get root cgroup stats: %v", err)
@@ -125,6 +126,7 @@ func (sp *summaryProviderImpl) GetCPUAndMemoryStats() (*statsapi.Summary, error)
 		return nil, fmt.Errorf("failed to get node info: %v", err)
 	}
 	nodeConfig := sp.provider.GetNodeConfig()
+	// @xnile
 	rootStats, err := sp.provider.GetCgroupCPUAndMemoryStats("/", false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get root cgroup stats: %v", err)

@@ -897,6 +897,7 @@ func (a prometheusHostAdapter) SubcontainersInfo(containerName string, query *ca
 func (a prometheusHostAdapter) GetVersionInfo() (*cadvisorapi.VersionInfo, error) {
 	return a.host.GetVersionInfo()
 }
+// @xnile
 func (a prometheusHostAdapter) GetMachineInfo() (*cadvisorapi.MachineInfo, error) {
 	return a.host.GetCachedMachineInfo()
 }

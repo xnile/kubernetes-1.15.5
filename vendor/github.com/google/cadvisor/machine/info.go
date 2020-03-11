@@ -93,6 +93,7 @@ func GetHugePagesInfo() ([]info.HugePagesInfo, error) {
 	return hugePagesInfo, nil
 }
 
+// @xnile 系统信息
 func Info(sysFs sysfs.SysFs, fsInfo fs.FsInfo, inHostNamespace bool) (*info.MachineInfo, error) {
 	rootFs := "/"
 	if !inHostNamespace {
