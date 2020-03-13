@@ -56,6 +56,7 @@ var applicationMetricsCountLimit = flag.Int("application_metrics_count_limit", 1
 
 // The Manager interface defines operations for starting a manager and getting
 // container and machine information.
+// @xnile Manager 接口
 type Manager interface {
 	// Start the manager. Calling other manager methods before this returns
 	// may produce undefined behavior.
@@ -133,6 +134,7 @@ type Manager interface {
 }
 
 // New takes a memory storage and returns a new manager.
+// @xnile 初始化manager
 func New(memoryCache *memory.InMemoryCache, sysfs sysfs.SysFs, maxHousekeepingInterval time.Duration, allowDynamicHousekeeping bool, includedMetricsSet container.MetricSet, collectorHttpClient *http.Client, rawContainerCgroupPathPrefixWhiteList []string) (Manager, error) {
 	if memoryCache == nil {
 		return nil, fmt.Errorf("manager requires memory storage")
@@ -185,7 +187,7 @@ func New(memoryCache *memory.InMemoryCache, sysfs sysfs.SysFs, maxHousekeepingIn
 		rawContainerCgroupPathPrefixWhiteList: rawContainerCgroupPathPrefixWhiteList,
 	}
 
-	// @xnile 系统信息
+	// @xnile 获取系统信息
 	machineInfo, err := machine.Info(sysfs, fsInfo, inHostNamespace)
 	if err != nil {
 		return nil, err
@@ -212,6 +214,7 @@ type namespacedContainerName struct {
 	Name string
 }
 
+// @xnile manager定义
 type manager struct {
 	containers               map[namespacedContainerName]*containerData
 	containersLock           sync.RWMutex
@@ -769,6 +772,7 @@ func (self *manager) GetFsInfo(label string) ([]v2.FsInfo, error) {
 	return fsInfo, nil
 }
 
+// @xnile 获取机器CPU,内存等信息
 func (m *manager) GetMachineInfo() (*info.MachineInfo, error) {
 	m.machineMu.RLock()
 	defer m.machineMu.RUnlock()

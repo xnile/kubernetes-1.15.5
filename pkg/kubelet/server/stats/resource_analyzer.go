@@ -39,6 +39,7 @@ var _ ResourceAnalyzer = &resourceAnalyzer{}
 // NewResourceAnalyzer returns a new ResourceAnalyzer
 func NewResourceAnalyzer(statsProvider Provider, calVolumeFrequency time.Duration) ResourceAnalyzer {
 	fsAnalyzer := newFsResourceAnalyzer(statsProvider, calVolumeFrequency)
+	// @xnile
 	summaryProvider := NewSummaryProvider(statsProvider)
 	return &resourceAnalyzer{fsAnalyzer, summaryProvider}
 }

@@ -27,6 +27,7 @@ import (
 )
 
 // SummaryProvider provides summaries of the stats from Kubelet.
+// @xnile SummaryProvider
 type SummaryProvider interface {
 	// Get provides a new Summary with the stats from Kubelet,
 	// and will update some stats if updateStats is true

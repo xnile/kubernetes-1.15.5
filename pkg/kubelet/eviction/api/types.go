@@ -67,6 +67,7 @@ var OpForSignal = map[Signal]ThresholdOperator{
 }
 
 // ThresholdValue is a value holder that abstracts literal versus percentage based quantity
+// @xnile 阀值
 type ThresholdValue struct {
 	// The following fields are exclusive. Only the topmost non-zero field is used.
 
@@ -77,6 +78,7 @@ type ThresholdValue struct {
 }
 
 // Threshold defines a metric for when eviction should occur.
+// @xnile 触发条件
 type Threshold struct {
 	// Signal defines the entity that was measured.
 	Signal Signal

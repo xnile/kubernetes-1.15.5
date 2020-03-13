@@ -612,6 +612,7 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 		MTU:                int(crOptions.NetworkPluginMTU),
 	}
 
+	// @xnile
 	klet.resourceAnalyzer = serverstats.NewResourceAnalyzer(klet, kubeCfg.VolumeStatsAggPeriod.Duration)
 
 	// if left at nil, that means it is unneeded
@@ -700,6 +701,7 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 	}
 	klet.runtimeCache = runtimeCache
 
+	// @xnile  实现Provider接口
 	if cadvisor.UsingLegacyCadvisorStats(containerRuntime, remoteRuntimeEndpoint) {
 		klet.StatsProvider = stats.NewCadvisorStatsProvider(
 			klet.cadvisor,
@@ -1089,6 +1091,7 @@ type Kubelet struct {
 	oomWatcher oomwatcher.Watcher
 
 	// Monitor resource usage
+	// @xnile
 	resourceAnalyzer serverstats.ResourceAnalyzer
 
 	// Whether or not we should have the QOS cgroup hierarchy for resource management

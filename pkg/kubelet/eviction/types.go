@@ -39,6 +39,7 @@ const (
 )
 
 // Config holds information about how eviction is configured.
+// @xnile 配置信息
 type Config struct {
 	// PressureTransitionPeriod is duration the kubelet has to wait before transititioning out of a pressure condition.
 	PressureTransitionPeriod time.Duration
@@ -53,6 +54,7 @@ type Config struct {
 }
 
 // Manager evaluates when an eviction threshold for node stability has been met on the node.
+// @xnile manager 接口
 type Manager interface {
 	// Start starts the control loop to monitor eviction thresholds at specified interval.
 	Start(diskInfoProvider DiskInfoProvider, podFunc ActivePodsFunc, podCleanedUpFunc PodCleanedUpFunc, monitoringInterval time.Duration)

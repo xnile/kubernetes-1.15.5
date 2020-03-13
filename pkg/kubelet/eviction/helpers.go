@@ -695,6 +695,8 @@ func (a byEvictionPriority) Less(i, j int) bool {
 }
 
 // makeSignalObservations derives observations using the specified summary provider.
+// @xnile 使用summary provider得出观察结果，判断是否触发阀值
+// @xnile 关键逻辑
 func makeSignalObservations(summary *statsapi.Summary) (signalObservations, statsFunc) {
 	// build the function to work against for pod stats
 	statsFunc := cachedStatsFunc(summary.Pods)
@@ -878,6 +880,7 @@ func thresholdsMetGracePeriod(observedAt thresholdsObservedAt, now time.Time) []
 }
 
 // nodeConditions returns the set of node conditions associated with a threshold
+// @xnile nodeConditions
 func nodeConditions(thresholds []evictionapi.Threshold) []v1.NodeConditionType {
 	results := []v1.NodeConditionType{}
 	for _, threshold := range thresholds {

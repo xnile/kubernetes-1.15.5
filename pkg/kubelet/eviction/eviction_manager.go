@@ -74,6 +74,7 @@ type managerImpl struct {
 	// used to record events about the node
 	recorder record.EventRecorder
 	// used to measure usage stats on system
+	// @xnile 获取系统信息
 	summaryProvider stats.SummaryProvider
 	// records when a threshold was first observed
 	thresholdsFirstObservedAt thresholdsObservedAt
@@ -127,6 +128,7 @@ func NewManager(
 }
 
 // Admit rejects a pod if its not safe to admit for node stability.
+// @xnile kubelet创建Pod前进行准入检查，满足条件后才会继续创建Pod
 func (m *managerImpl) Admit(attrs *lifecycle.PodAdmitAttributes) lifecycle.PodAdmitResult {
 	m.RLock()
 	defer m.RUnlock()
@@ -166,11 +168,13 @@ func (m *managerImpl) Admit(attrs *lifecycle.PodAdmitAttributes) lifecycle.PodAd
 }
 
 // Start starts the control loop to observe and response to low compute resources.
+// @xnile 启动 goroutine 处理 eviction
 func (m *managerImpl) Start(diskInfoProvider DiskInfoProvider, podFunc ActivePodsFunc, podCleanedUpFunc PodCleanedUpFunc, monitoringInterval time.Duration) {
 	thresholdHandler := func(message string) {
 		klog.Infof(message)
 		m.synchronize(diskInfoProvider, podFunc)
 	}
+	// @xnile memcg
 	if m.config.KernelMemcgNotification {
 		for _, threshold := range m.config.Thresholds {
 			if threshold.Signal == evictionapi.SignalMemoryAvailable || threshold.Signal == evictionapi.SignalAllocatableMemoryAvailable {
@@ -178,6 +182,7 @@ func (m *managerImpl) Start(diskInfoProvider DiskInfoProvider, podFunc ActivePod
 				if err != nil {
 					klog.Warningf("eviction manager: failed to create memory threshold notifier: %v", err)
 				} else {
+					// @xnile
 					go notifier.Start()
 					m.thresholdNotifiers = append(m.thresholdNotifiers, notifier)
 				}
@@ -191,7 +196,7 @@ func (m *managerImpl) Start(diskInfoProvider DiskInfoProvider, podFunc ActivePod
 				klog.Infof("eviction manager: pods %s evicted, waiting for pod to be cleaned up", format.Pods(evictedPods))
 				m.waitForPodsCleanup(podCleanedUpFunc, evictedPods)
 			} else {
-				time.Sleep(monitoringInterval)
+				time.Sleep(monitoringInterval) //@xnile 间隔
 			}
 		}
 	}()
@@ -221,6 +226,7 @@ func (m *managerImpl) IsUnderPIDPressure() bool {
 
 // synchronize is the main control loop that enforces eviction thresholds.
 // Returns the pod that was killed, or nil if no pod was killed.
+// @xnile pod驱逐主逻辑
 func (m *managerImpl) synchronize(diskInfoProvider DiskInfoProvider, podFunc ActivePodsFunc) []*v1.Pod {
 	// if we have nothing to do, just return
 	thresholds := m.config.Thresholds
@@ -238,6 +244,7 @@ func (m *managerImpl) synchronize(diskInfoProvider DiskInfoProvider, podFunc Act
 		}
 		m.dedicatedImageFs = &hasImageFs
 		m.signalToRankFunc = buildSignalToRankFunc(hasImageFs)
+		// @xnile 清理images
 		m.signalToNodeReclaimFuncs = buildSignalToNodeReclaimFuncs(m.imageGC, m.containerGC, hasImageFs)
 	}
 
@@ -278,15 +285,18 @@ func (m *managerImpl) synchronize(diskInfoProvider DiskInfoProvider, podFunc Act
 	thresholdsFirstObservedAt := thresholdsFirstObservedAt(thresholds, m.thresholdsFirstObservedAt, now)
 
 	// the set of node conditions that are triggered by currently observed thresholds
+	// @xnile 当前观察到的
 	nodeConditions := nodeConditions(thresholds)
 	if len(nodeConditions) > 0 {
 		klog.V(3).Infof("eviction manager: node conditions - observed: %v", nodeConditions)
 	}
 
 	// track when a node condition was last observed
+	// @xnile 上一次观察到的时间
 	nodeConditionsLastObservedAt := nodeConditionsLastObservedAt(nodeConditions, m.nodeConditionsLastObservedAt, now)
 
 	// node conditions report true if it has been observed within the transition period window
+	// @xnile 观察期
 	nodeConditions = nodeConditionsObservedSince(nodeConditionsLastObservedAt, m.config.PressureTransitionPeriod, now)
 	if len(nodeConditions) > 0 {
 		klog.V(3).Infof("eviction manager: node conditions - transition period not met: %v", nodeConditions)
@@ -298,6 +308,7 @@ func (m *managerImpl) synchronize(diskInfoProvider DiskInfoProvider, podFunc Act
 
 	// update internal state
 	m.Lock()
+	// @xnile 更新node状态
 	m.nodeConditions = nodeConditions
 	m.thresholdsFirstObservedAt = thresholdsFirstObservedAt
 	m.nodeConditionsLastObservedAt = nodeConditionsLastObservedAt

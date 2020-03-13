@@ -38,6 +38,7 @@ import (
 )
 
 // Provider hosts methods required by stats handlers.
+// @xnile 接口
 type Provider interface {
 	// The following stats are provided by either CRI or cAdvisor.
 	//
