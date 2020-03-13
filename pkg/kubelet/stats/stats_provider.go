@@ -101,6 +101,7 @@ type rlimitStatsProvider interface {
 }
 
 // RlimitStats returns base information about process count
+// @xnile 系统最大进程数
 func (p *StatsProvider) RlimitStats() (*statsapi.RlimitStats, error) {
 	return pidlimit.Stats()
 }

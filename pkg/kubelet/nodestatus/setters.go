@@ -312,6 +312,7 @@ func MachineInfo(nodeName string,
 				delete(node.Status.Allocatable, k)
 			}
 		}
+		// @xnile 预留的资源
 		allocatableReservation := nodeAllocatableReservationFunc()
 		for k, v := range node.Status.Capacity {
 			value := *(v.Copy())

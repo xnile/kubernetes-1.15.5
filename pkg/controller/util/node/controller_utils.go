@@ -44,6 +44,7 @@ import (
 // DeletePods will delete all pods from master running on given node,
 // and return true if any pods were deleted, or were found pending
 // deletion.
+// @xnile 删除pod
 func DeletePods(kubeClient clientset.Interface, recorder record.EventRecorder, nodeName, nodeUID string, daemonStore appsv1listers.DaemonSetLister) (bool, error) {
 	remaining := false
 	selector := fields.OneTermEqualSelector(api.PodHostField, nodeName).String()
@@ -86,6 +87,7 @@ func DeletePods(kubeClient clientset.Interface, recorder record.EventRecorder, n
 
 		klog.V(2).Infof("Starting deletion of pod %v/%v", pod.Namespace, pod.Name)
 		recorder.Eventf(&pod, v1.EventTypeNormal, "NodeControllerEviction", "Marking for deletion Pod %s from Node %s", pod.Name, nodeName)
+		// @删除pod
 		if err := kubeClient.CoreV1().Pods(pod.Namespace).Delete(pod.Name, nil); err != nil {
 			return false, err
 		}

@@ -107,6 +107,7 @@ type ActivePodsFunc func() []*v1.Pod
 type PodCleanedUpFunc func(*v1.Pod) bool
 
 // statsFunc returns the usage stats if known for an input pod.
+// @xnile
 type statsFunc func(pod *v1.Pod) (statsapi.PodStats, bool)
 
 // rankFunc sorts the pods in eviction order

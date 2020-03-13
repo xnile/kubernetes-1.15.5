@@ -755,6 +755,7 @@ func makeSignalObservations(summary *statsapi.Summary) (signalObservations, stat
 			}
 		}
 	}
+	// @xnile 最大进程数
 	if rlimit := summary.Node.Rlimit; rlimit != nil {
 		if rlimit.NumOfRunningProcesses != nil && rlimit.MaxPID != nil {
 			available := int64(*rlimit.MaxPID) - int64(*rlimit.NumOfRunningProcesses)

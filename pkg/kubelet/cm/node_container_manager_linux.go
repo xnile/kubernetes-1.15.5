@@ -54,6 +54,7 @@ func (cm *containerManagerImpl) createNodeAllocatableCgroups() error {
 }
 
 // enforceNodeAllocatableCgroups enforce Node Allocatable Cgroup settings.
+// @xnile
 func (cm *containerManagerImpl) enforceNodeAllocatableCgroups() error {
 	nc := cm.NodeConfig.NodeAllocatableConfig
 
@@ -201,6 +202,7 @@ func (cm *containerManagerImpl) getNodeAllocatableInternalAbsolute() v1.Resource
 }
 
 // GetNodeAllocatableReservation returns amount of compute or storage resource that have to be reserved on this node from scheduling.
+// @xnile 在调度的时候需要预留的资源
 func (cm *containerManagerImpl) GetNodeAllocatableReservation() v1.ResourceList {
 	evictionReservation := hardEvictionReservation(cm.HardEvictionThresholds, cm.capacity)
 	result := make(v1.ResourceList)

@@ -19,6 +19,7 @@ limitations under the License.
 // some effort should be given to getting existing work
 // loads off of tainted nodes.
 
+// @xnile node生命周期控制器
 package nodelifecycle
 
 import (
@@ -908,6 +909,7 @@ func (nc *Controller) tryUpdateNodeHealth(node *v1.Node) (time.Duration, v1.Node
 		// Note: If kubelet never posted the node status, but continues renewing the
 		// heartbeat leases, the node controller will assume the node is healthy and
 		// take no action.
+		// @xnile 心跳
 		observedLease, _ = nc.leaseLister.Leases(v1.NamespaceNodeLease).Get(node.Name)
 		if observedLease != nil && (savedLease == nil || savedLease.Spec.RenewTime.Before(observedLease.Spec.RenewTime)) {
 			savedNodeHealth.lease = observedLease
