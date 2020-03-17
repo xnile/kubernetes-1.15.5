@@ -213,6 +213,7 @@ func (m *manager) CleanupPods(activePods []*v1.Pod) {
 	}
 }
 
+// @xnile 更新状态
 func (m *manager) UpdatePodStatus(podUID types.UID, podStatus *v1.PodStatus) {
 	for i, c := range podStatus.ContainerStatuses {
 		var ready bool

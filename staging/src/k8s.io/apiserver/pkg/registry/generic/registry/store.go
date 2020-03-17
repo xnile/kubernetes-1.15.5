@@ -885,6 +885,7 @@ func (e *Store) updateForGracefulDeletionAndFinalizers(ctx context.Context, name
 }
 
 // Delete removes the item from storage.
+// @xnile 从ETCD中删除
 func (e *Store) Delete(ctx context.Context, name string, deleteValidation rest.ValidateObjectFunc, options *metav1.DeleteOptions) (runtime.Object, bool, error) {
 	key, err := e.KeyFunc(ctx, name)
 	if err != nil {
@@ -926,6 +927,7 @@ func (e *Store) Delete(ctx context.Context, name string, deleteValidation rest.V
 
 	// Handle combinations of graceful deletion and finalization by issuing
 	// the correct updates.
+	// @xnile
 	shouldUpdateFinalizers, _ := deletionFinalizersForGarbageCollection(ctx, e, accessor, options)
 	// TODO: remove the check, because we support no-op updates now.
 	if graceful || pendingFinalizers || shouldUpdateFinalizers {

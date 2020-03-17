@@ -509,9 +509,11 @@ func (m *manager) syncPod(uid types.UID, status versionedPodStatus) {
 	// We don't handle graceful deletion of mirror pods.
 	// @xnile
 	if m.canBeDeleted(pod, status.status) {
+		// @xnile GracePeriodSeconds=0 立即删除
 		deleteOptions := metav1.NewDeleteOptions(0)
 		// Use the pod UID as the precondition for deletion to prevent deleting a newly created pod with the same name and namespace.
 		deleteOptions.Preconditions = metav1.NewUIDPreconditions(string(pod.UID))
+		// @xnile 调用api删除
 		err = m.kubeClient.CoreV1().Pods(pod.Namespace).Delete(pod.Name, deleteOptions)
 		if err != nil {
 			klog.Warningf("Failed to delete status for pod %q: %v", format.Pod(pod), err)
@@ -524,6 +526,7 @@ func (m *manager) syncPod(uid types.UID, status versionedPodStatus) {
 
 // needsUpdate returns whether the status is stale for the given pod UID.
 // This method is not thread safe, and must only be accessed by the sync thread.
+// @xnile 更新或删除
 func (m *manager) needsUpdate(uid types.UID, status versionedPodStatus) bool {
 	latest, ok := m.apiStatusVersions[kubetypes.MirrorPodUID(uid)]
 	if !ok || latest < status.version {

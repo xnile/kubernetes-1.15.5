@@ -235,6 +235,7 @@ func (id DockerID) ContainerID() ContainerID {
 
 type ContainerState string
 
+// @xnile pod 状态
 const (
 	ContainerStateCreated ContainerState = "created"
 	ContainerStateRunning ContainerState = "running"

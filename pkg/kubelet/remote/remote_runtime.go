@@ -227,9 +227,11 @@ func (r *RemoteRuntimeService) StartContainer(containerID string) error {
 }
 
 // StopContainer stops a running container with a grace period (i.e., timeout).
+// @xnile 停止容器
 func (r *RemoteRuntimeService) StopContainer(containerID string, timeout int64) error {
 	// Use timeout + default timeout (2 minutes) as timeout to leave extra time
 	// for SIGKILL container and request latency.
+	// @xnile 时间
 	t := r.timeout + time.Duration(timeout)*time.Second
 	ctx, cancel := getContextWithTimeout(t)
 	defer cancel()

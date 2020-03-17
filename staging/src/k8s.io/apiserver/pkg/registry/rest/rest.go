@@ -146,6 +146,7 @@ type TableConvertor interface {
 
 // GracefulDeleter knows how to pass deletion options to allow delayed deletion of a
 // RESTful object.
+// @xnile 接口
 type GracefulDeleter interface {
 	// Delete finds a resource in the storage and deletes it.
 	// The delete attempt is validated by the deleteValidation first.

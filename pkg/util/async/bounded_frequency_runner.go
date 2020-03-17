@@ -131,6 +131,7 @@ var _ timer = realTimer{}
 //
 // The maxInterval must be greater than or equal to the minInterval,  If the
 // caller passes a maxInterval less than minInterval, this function will panic.
+// @xnile
 func NewBoundedFrequencyRunner(name string, fn func(), minInterval, maxInterval time.Duration, burstRuns int) *BoundedFrequencyRunner {
 	timer := realTimer{Timer: time.NewTimer(0)} // will tick immediately
 	<-timer.C()                                 // consume the first tick

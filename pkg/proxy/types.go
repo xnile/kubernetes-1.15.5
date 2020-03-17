@@ -25,6 +25,7 @@ import (
 )
 
 // ProxyProvider is the interface provided by proxier implementations.
+// @xnile 接口
 type ProxyProvider interface {
 	config.EndpointsHandler
 	config.ServiceHandler
@@ -49,6 +50,7 @@ func (spn ServicePortName) String() string {
 }
 
 // ServicePort is an interface which abstracts information about a service.
+// @xnile 服务相关端口
 type ServicePort interface {
 	// String returns service string.  An example format can be: `IP:Port/Protocol`.
 	String() string

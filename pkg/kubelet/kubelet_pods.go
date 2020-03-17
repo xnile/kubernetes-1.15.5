@@ -983,6 +983,7 @@ func (kl *Kubelet) removeOrphanedPodStatuses(pods []*v1.Pod, mirrorPods []*v1.Po
 // directories.
 // NOTE: This function is executed by the main sync loop, so it
 // should not contain any blocking calls.
+// @xnile 清理pod相关资源
 func (kl *Kubelet) HandlePodCleanups() error {
 	// The kubelet lacks checkpointing, so we need to introspect the set of pods
 	// in the cgroup tree prior to inspecting the set of pods in our pod manager.
@@ -1219,6 +1220,7 @@ func (kl *Kubelet) GetKubeletContainerLogs(ctx context.Context, podFullName, con
 }
 
 // getPhase returns the phase of a pod given its container info.
+// @xnile pod 生命周期信息
 func getPhase(spec *v1.PodSpec, info []v1.ContainerStatus) v1.PodPhase {
 	pendingInitialization := 0
 	failedInitialization := 0

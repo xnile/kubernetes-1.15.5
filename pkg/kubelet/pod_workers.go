@@ -293,6 +293,7 @@ func (p *podWorkers) checkForUpdates(uid types.UID) {
 func killPodNow(podWorkers PodWorkers, recorder record.EventRecorder) eviction.KillPodFunc {
 	return func(pod *v1.Pod, status v1.PodStatus, gracePeriodOverride *int64) error {
 		// determine the grace period to use when killing the pod
+		// @xnile 优雅删除
 		gracePeriod := int64(0)
 		if gracePeriodOverride != nil {
 			gracePeriod = *gracePeriodOverride
@@ -302,8 +303,10 @@ func killPodNow(podWorkers PodWorkers, recorder record.EventRecorder) eviction.K
 
 		// we timeout and return an error if we don't get a callback within a reasonable time.
 		// the default timeout is relative to the grace period (we settle on 10s to wait for kubelet->runtime traffic to complete in sigkill)
+		// @xnile 时间
 		timeout := int64(gracePeriod + (gracePeriod / 2))
 		minTimeout := int64(10)
+		// @xnile 最小10秒
 		if timeout < minTimeout {
 			timeout = minTimeout
 		}

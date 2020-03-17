@@ -284,6 +284,7 @@ func (ds *dockerService) StartContainer(_ context.Context, r *runtimeapi.StartCo
 }
 
 // StopContainer stops a running container with a grace period (i.e., timeout).
+// @xnile 停止容器
 func (ds *dockerService) StopContainer(_ context.Context, r *runtimeapi.StopContainerRequest) (*runtimeapi.StopContainerResponse, error) {
 	err := ds.client.StopContainer(r.ContainerId, time.Duration(r.Timeout)*time.Second)
 	if err != nil {
@@ -330,6 +331,7 @@ func getContainerTimestamps(r *dockertypes.ContainerJSON) (time.Time, time.Time,
 }
 
 // ContainerStatus inspects the docker container and returns the status.
+// @xnile 容器状态
 func (ds *dockerService) ContainerStatus(_ context.Context, req *runtimeapi.ContainerStatusRequest) (*runtimeapi.ContainerStatusResponse, error) {
 	containerID := req.ContainerId
 	r, err := ds.client.InspectContainer(containerID)

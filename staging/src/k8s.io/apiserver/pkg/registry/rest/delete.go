@@ -69,6 +69,7 @@ type RESTGracefulDeleteStrategy interface {
 // where we set deletionTimestamp is pkg/registry/generic/registry/store.go.
 // This function is responsible for setting deletionTimestamp during gracefulDeletion,
 // other one for cascading deletions.
+// @xnile 关键
 func BeforeDelete(strategy RESTDeleteStrategy, ctx context.Context, obj runtime.Object, options *metav1.DeleteOptions) (graceful, gracefulPending bool, err error) {
 	objectMeta, gvk, kerr := objectMetaAndKind(strategy, obj)
 	if kerr != nil {
