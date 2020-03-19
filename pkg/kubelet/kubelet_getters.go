@@ -166,6 +166,7 @@ func (kl *Kubelet) getPluginsDirSELinuxLabel() string {
 
 // GetPods returns all pods bound to the kubelet and their spec, and the mirror
 // pods.
+// @xnile 获取所有应该被kubelet管理的pod
 func (kl *Kubelet) GetPods() []*v1.Pod {
 	pods := kl.podManager.GetPods()
 	// a kubelet running without apiserver requires an additional

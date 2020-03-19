@@ -1001,6 +1001,7 @@ func (kl *Kubelet) HandlePodCleanups() error {
 		}
 	}
 
+	// @xnile 获取所有pod和静态pod
 	allPods, mirrorPods := kl.podManager.GetPodsAndMirrorPods()
 	// Pod phase progresses monotonically. Once a pod has reached a final state,
 	// it should never leave regardless of the restart policy. The statuses

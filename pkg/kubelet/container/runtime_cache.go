@@ -91,6 +91,7 @@ func (r *runtimeCache) updateCache() error {
 func (r *runtimeCache) getPodsWithTimestamp() ([]*Pod, time.Time, error) {
 	// Always record the timestamp before getting the pods to avoid stale pods.
 	timestamp := time.Now()
+	// @xnile
 	pods, err := r.getter.GetPods(false)
 	return pods, timestamp, err
 }

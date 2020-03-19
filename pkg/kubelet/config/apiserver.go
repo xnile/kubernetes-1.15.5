@@ -30,6 +30,7 @@ import (
 )
 
 // NewSourceApiserver creates a config source that watches and pulls from the apiserver.
+// @xnile Watch apiserver获取pod变更事件
 func NewSourceApiserver(c clientset.Interface, nodeName types.NodeName, updates chan<- interface{}) {
 	lw := cache.NewListWatchFromClient(c.CoreV1().RESTClient(), "pods", metav1.NamespaceAll, fields.OneTermEqualSelector(api.PodHostField, string(nodeName)))
 	newSourceApiserverFromLW(lw, updates)

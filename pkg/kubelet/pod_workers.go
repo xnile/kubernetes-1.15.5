@@ -70,6 +70,7 @@ type UpdatePodOptions struct {
 }
 
 // PodWorkers is an abstract interface for testability.
+// @xnile 接口
 type PodWorkers interface {
 	UpdatePod(options *UpdatePodOptions)
 	ForgetNonExistingPodWorkers(desiredPods map[types.UID]empty)
@@ -154,6 +155,7 @@ func newPodWorkers(syncPodFn syncPodFnType, recorder record.EventRecorder, workQ
 	}
 }
 
+// @xnile
 func (p *podWorkers) managePodLoop(podUpdates <-chan UpdatePodOptions) {
 	var lastSyncTime time.Time
 	for update := range podUpdates {
@@ -171,6 +173,7 @@ func (p *podWorkers) managePodLoop(podUpdates <-chan UpdatePodOptions) {
 				p.recorder.Eventf(update.Pod, v1.EventTypeWarning, events.FailedSync, "error determining status: %v", err)
 				return err
 			}
+			// @xnile  kubelet.syncPod
 			err = p.syncPodFn(syncPodOptions{
 				mirrorPod:      update.MirrorPod,
 				pod:            update.Pod,
@@ -226,6 +229,7 @@ func (p *podWorkers) UpdatePod(options *UpdatePodOptions) {
 		podUpdates <- *options
 	} else {
 		// if a request to kill a pod is pending, we do not let anything overwrite that request.
+		// @xnile 如果正在被kill则忽略更新
 		update, found := p.lastUndeliveredWorkUpdate[pod.UID]
 		if !found || update.UpdateType != kubetypes.SyncPodKill {
 			p.lastUndeliveredWorkUpdate[pod.UID] = *options
