@@ -57,6 +57,7 @@ func (c containerStatusByCreated) Swap(i, j int)      { c[i], c[j] = c[j], c[i] 
 func (c containerStatusByCreated) Less(i, j int) bool { return c[i].CreatedAt.After(c[j].CreatedAt) }
 
 // toKubeContainerState converts runtimeapi.ContainerState to kubecontainer.ContainerState.
+// @xnile TODO
 func toKubeContainerState(state runtimeapi.ContainerState) kubecontainer.ContainerState {
 	switch state {
 	case runtimeapi.ContainerState_CONTAINER_CREATED:
@@ -100,7 +101,7 @@ func (m *kubeGenericRuntimeManager) toKubeContainer(c *runtimeapi.Container) (*k
 		ImageID: c.ImageRef,
 		Image:   c.Image.Image,
 		Hash:    annotatedInfo.Hash,
-		State:   toKubeContainerState(c.State),
+		State:   toKubeContainerState(c.State), //@xnile
 	}, nil
 }
 

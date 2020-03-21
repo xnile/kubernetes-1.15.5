@@ -325,6 +325,7 @@ func (m *kubeGenericRuntimeManager) GetPods(all bool) ([]*kubecontainer.Pod, err
 		p.Sandboxes = append(p.Sandboxes, converted)
 	}
 
+	// @xnile
 	containers, err := m.getKubeletContainers(all)
 	if err != nil {
 		return nil, err
@@ -347,6 +348,7 @@ func (m *kubeGenericRuntimeManager) GetPods(all bool) ([]*kubecontainer.Pod, err
 			pods[labelledInfo.PodUID] = pod
 		}
 
+		// @xnile TODO
 		converted, err := m.toKubeContainer(c)
 		if err != nil {
 			klog.V(4).Infof("Convert %s container %v of pod %q failed: %v", m.runtimeName, c, labelledInfo.PodUID, err)
@@ -458,6 +460,7 @@ func containerSucceeded(c *v1.Container, podStatus *kubecontainer.PodStatus) boo
 }
 
 // computePodActions checks whether the pod spec has changed and returns the changes if true.
+// @xnile 检查pod是否有改动
 func (m *kubeGenericRuntimeManager) computePodActions(pod *v1.Pod, podStatus *kubecontainer.PodStatus) podActions {
 	klog.V(5).Infof("Syncing Pod %q: %+v", format.Pod(pod), pod)
 

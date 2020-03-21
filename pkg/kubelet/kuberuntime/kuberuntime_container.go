@@ -106,6 +106,7 @@ func (m *kubeGenericRuntimeManager) startContainer(podSandboxID string, podSandb
 	klog.V(4).Infof("Generating ref for container %s: %#v", container.Name, ref)
 
 	// For a new container, the RestartCount should be 0
+	// @xnile 重启次数
 	restartCount := 0
 	containerStatus := podStatus.FindContainerStatusByName(container.Name)
 	if containerStatus != nil {
@@ -322,6 +323,7 @@ func (m *kubeGenericRuntimeManager) makeMounts(opts *kubecontainer.RunContainerO
 // getKubeletContainers lists containers managed by kubelet.
 // The boolean parameter specifies whether returns all containers including
 // those already exited and dead containers (used for garbage collection).
+// @xnile TODO
 func (m *kubeGenericRuntimeManager) getKubeletContainers(allContainers bool) ([]*runtimeapi.Container, error) {
 	filter := &runtimeapi.ContainerFilter{}
 	if !allContainers {
@@ -393,6 +395,7 @@ func (m *kubeGenericRuntimeManager) getPodContainerStatuses(uid kubetypes.UID, n
 	statuses := make([]*kubecontainer.ContainerStatus, len(containers))
 	// TODO: optimization: set maximum number of containers per container name to examine.
 	for i, c := range containers {
+		// @xnile 关键，调用cri接口获取容器状态
 		status, err := m.runtimeService.ContainerStatus(c.Id)
 		if err != nil {
 			// Merely log this here; GetPodStatus will actually report the error out.

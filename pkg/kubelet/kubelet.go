@@ -1489,7 +1489,7 @@ func (kl *Kubelet) Run(updates <-chan kubetypes.PodUpdate) {
 // This operation writes all events that are dispatched in order to provide
 // the most accurate information possible about an error situation to aid debugging.
 // Callers should not throw an event if this operation returns an error.
-// @xnile 关键
+// @xnile 关键 sync单位:pod
 func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	// pull out the required options
 	pod := o.pod
@@ -1504,6 +1504,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 			return fmt.Errorf("kill pod options are required if update type is kill")
 		}
 		apiPodStatus := killPodOptions.PodStatusFunc(pod, podStatus)
+		// @xnile 更新pod状态
 		kl.statusManager.SetPodStatus(pod, apiPodStatus)
 		// we kill the pod with the specified grace period since this is a termination
 		if err := kl.killPod(pod, nil, podStatus, killPodOptions.PodTerminationGracePeriodSecondsOverride); err != nil {
@@ -1550,6 +1551,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 		metrics.DeprecatedPodStartLatency.Observe(metrics.SinceInMicroseconds(firstSeenTime))
 	}
 
+	// @xnile 准入控制
 	runnable := kl.canRunPod(pod)
 	if !runnable.Admit {
 		// Pod is not runnable; update the Pod and Container statuses to why.
@@ -1570,6 +1572,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	}
 
 	// Update status in the status manager
+	// @xnile 更新pod状态
 	kl.statusManager.SetPodStatus(pod, apiPodStatus)
 
 	// Kill pod if it should not be running
@@ -1694,6 +1697,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	pullSecrets := kl.getPullSecretsForPod(pod)
 
 	// Call the container runtime's SyncPod callback
+	// @xnile
 	result := kl.containerRuntime.SyncPod(pod, podStatus, pullSecrets, kl.backOff)
 	kl.reasonCache.Update(pod.UID, result)
 	if err := result.Error(); err != nil {
@@ -1953,6 +1957,7 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 			// the update to ensure the internal pod cache is up-to-date.
 			kl.sourcesReady.AddSource(u.Source)
 		}
+	//@xnile PLEG
 	case e := <-plegCh:
 		if isSyncPodWorthy(e) {
 			// PLEG event for a pod; sync it.
@@ -1978,6 +1983,7 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 		}
 		klog.V(4).Infof("SyncLoop (SYNC): %d pods; %s", len(podsToSync), format.Pods(podsToSync))
 		handler.HandlePodSyncs(podsToSync)
+	// @xnile 存活探针
 	case update := <-kl.livenessManager.Updates():
 		if update.Result == proberesults.Failure {
 			// The liveness manager detected a failure; sync the pod.

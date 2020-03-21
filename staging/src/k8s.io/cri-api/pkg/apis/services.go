@@ -90,6 +90,7 @@ type ContainerStatsManager interface {
 
 // RuntimeService interface should be implemented by a container runtime.
 // The methods should be thread-safe.
+// @xnile CRI 接口
 type RuntimeService interface {
 	RuntimeVersioner
 	ContainerManager

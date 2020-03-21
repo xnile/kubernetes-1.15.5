@@ -31,6 +31,7 @@ type RuntimeCache interface {
 	ForceUpdateIfOlder(time.Time) error
 }
 
+// @xnile 接口
 type podsGetter interface {
 	GetPods(bool) ([]*Pod, error)
 }
