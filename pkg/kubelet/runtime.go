@@ -80,6 +80,8 @@ func (s *runtimeState) podCIDR() string {
 	return s.cidr
 }
 
+// @xnile 
+// Mar 24 11:18:49 XXXX03009prod kubelet: I0324 11:18:49.795119  272220 kubelet.go:1838] skipping pod synchronization - [container runtime status check may not have completed yet., PLEG is not healthy: pleg was last seen active 5m0.03492032s ago; threshold is 3m0s.]
 func (s *runtimeState) runtimeErrors() error {
 	s.RLock()
 	defer s.RUnlock()

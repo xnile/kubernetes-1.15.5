@@ -98,6 +98,7 @@ func newCRIStatsProvider(
 }
 
 // ListPodStats returns the stats of all the pod-managed containers.
+// @xnile pod状态
 func (p *criStatsProvider) ListPodStats() ([]statsapi.PodStats, error) {
 	// Don't update CPU nano core usage.
 	return p.listPodStats(false)

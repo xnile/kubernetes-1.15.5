@@ -595,8 +595,10 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 		}
 	}
 	// podManager is also responsible for keeping secretManager and configMapManager contents up-to-date.
+	// @xnile 内部pod存储管理
 	klet.podManager = kubepod.NewBasicPodManager(kubepod.NewBasicMirrorClient(klet.kubeClient), secretManager, configMapManager, checkpointManager)
 
+	// @xnile 状态
 	klet.statusManager = status.NewManager(klet.kubeClient, klet.podManager, klet)
 
 	if remoteRuntimeEndpoint != "" {
@@ -622,9 +624,11 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 	// if left at nil, that means it is unneeded
 	var legacyLogProvider kuberuntime.LegacyLogProvider
 
+	// @xnile 容器运行时
 	switch containerRuntime {
 	case kubetypes.DockerContainerRuntime:
 		// Create and start the CRI shim running as a grpc server.
+		// @xnile CRI server
 		streamingConfig := getStreamingConfig(kubeCfg, kubeDeps, crOptions)
 		ds, err := dockershim.NewDockerService(kubeDeps.DockerClientConfig, crOptions.PodSandboxImage, streamingConfig,
 			&pluginSettings, runtimeCgroups, kubeCfg.CgroupDriver, crOptions.DockershimRootDirectory, !crOptions.RedirectContainerStreaming)
@@ -664,6 +668,7 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 	if err != nil {
 		return nil, err
 	}
+	// @xnile
 	klet.runtimeService = runtimeService
 
 	if utilfeature.DefaultFeatureGate.Enabled(features.RuntimeClass) && kubeDeps.KubeClient != nil {
@@ -727,6 +732,7 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 			kubecontainer.RealOS{})
 	}
 
+	// @xnile runtime 健康检查
 	klet.pleg = pleg.NewGenericPLEG(klet.containerRuntime, plegChannelCapacity, plegRelistPeriod, klet.podCache, clock.RealClock{})
 	klet.runtimeState = newRuntimeState(maxWaitForContainerRuntime)
 	klet.runtimeState.addHealthCheck("PLEG", klet.pleg.Healthy)
@@ -1448,7 +1454,7 @@ func (kl *Kubelet) Run(updates <-chan kubetypes.PodUpdate) {
 	go wait.Until(kl.podKiller, 1*time.Second, wait.NeverStop)
 
 	// Start component sync loops.
-	// @xnile pod状态
+	// @xnile 同步pod状态到apiserver
 	kl.statusManager.Start()
 	kl.probeManager.Start()
 
@@ -1458,6 +1464,7 @@ func (kl *Kubelet) Run(updates <-chan kubetypes.PodUpdate) {
 	}
 
 	// Start the pod lifecycle event generator.
+	// @xnile 启动PLEG
 	kl.pleg.Start()
 	kl.syncLoop(updates, kl)
 }
@@ -1544,6 +1551,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	podStatus.IP = apiPodStatus.PodIP
 
 	// Record the time it takes for the pod to become running.
+	// @xnile 获取pod状态
 	existingStatus, ok := kl.statusManager.GetPodStatus(pod.UID)
 	if !ok || existingStatus.Phase == v1.PodPending && apiPodStatus.Phase == v1.PodRunning &&
 		!firstSeenTime.IsZero() {
@@ -1697,7 +1705,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	pullSecrets := kl.getPullSecretsForPod(pod)
 
 	// Call the container runtime's SyncPod callback
-	// @xnile
+	// @xnile ->kubeGenericRuntimeManager.SyncPod()
 	result := kl.containerRuntime.SyncPod(pod, podStatus, pullSecrets, kl.backOff)
 	kl.reasonCache.Update(pod.UID, result)
 	if err := result.Error(); err != nil {
@@ -1850,6 +1858,7 @@ func (kl *Kubelet) syncLoop(updates <-chan kubetypes.PodUpdate, handler SyncHand
 	)
 	duration := base
 	for {
+		// @xnile 如果runtime状态不正常则略过
 		if err := kl.runtimeState.runtimeErrors(); err != nil {
 			klog.Infof("skipping pod synchronization - %v", err)
 			// exponential backoff

@@ -284,6 +284,8 @@ func (r *RemoteRuntimeService) ListContainers(filter *runtimeapi.ContainerFilter
 }
 
 // ContainerStatus returns the container status.
+// @xnile
+// Mar 24 11:17:49 XXXXX03009prod kubelet: E0324 11:17:49.792288  272220 remote_runtime.go:321] ContainerStatus "5b5c5efe688f76238c454f11db5cf8ce82590ec90f961e8901cbd1c63d7c9350" from runtime service failed: rpc error: code = DeadlineExceeded desc = context deadline exceeded
 func (r *RemoteRuntimeService) ContainerStatus(containerID string) (*runtimeapi.ContainerStatus, error) {
 	ctx, cancel := getContextWithTimeout(r.timeout)
 	defer cancel()

@@ -109,7 +109,7 @@ type kubeGenericRuntimeManager struct {
 	imagePuller images.ImageManager
 
 	// gRPC service clients
-	// @xnile
+	// @xnile 调用cri接口
 	runtimeService internalapi.RuntimeService
 	imageService   internalapi.ImageManagerService
 
@@ -656,7 +656,7 @@ func (m *kubeGenericRuntimeManager) SyncPod(pod *v1.Pod, podStatus *kubecontaine
 			klog.V(3).Infof("Killing unwanted container %q(id=%q) for pod %q", containerInfo.name, containerID, format.Pod(pod))
 			killContainerResult := kubecontainer.NewSyncResult(kubecontainer.KillContainer, containerInfo.name)
 			result.AddSyncResult(killContainerResult)
-			// @xnile 关键
+			// @xnile
 			if err := m.killContainer(pod, containerID, containerInfo.name, containerInfo.message, nil); err != nil {
 				killContainerResult.Fail(kubecontainer.ErrKillContainer, err.Error())
 				klog.Errorf("killContainer %q(id=%q) for pod %q failed: %v", containerInfo.name, containerID, format.Pod(pod), err)
@@ -905,6 +905,7 @@ func (m *kubeGenericRuntimeManager) GetPodStatus(uid kubetypes.UID, name, namesp
 	}
 
 	// Get statuses of all containers visible in the pod.
+	// @xnile -> getPodContainerStatuses
 	containerStatuses, err := m.getPodContainerStatuses(uid, name, namespace)
 	if err != nil {
 		if m.logReduction.ShouldMessageBePrinted(err.Error(), podFullName) {

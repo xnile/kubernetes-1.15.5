@@ -391,6 +391,7 @@ func (g *GenericPLEG) updateCache(pod *kubecontainer.Pod, pid types.UID) error {
 	// TODO: Consider adding a new runtime method
 	// GetPodStatus(pod *kubecontainer.Pod) so that Docker can avoid listing
 	// all containers again.
+	// @xnile 调用runtime.GetPodStatus方法获取pod状态
 	status, err := g.runtime.GetPodStatus(pod.ID, pod.Name, pod.Namespace)
 	klog.V(4).Infof("PLEG: Write status for %s/%s: %#v (err: %v)", pod.Name, pod.Namespace, status, err)
 	if err == nil {

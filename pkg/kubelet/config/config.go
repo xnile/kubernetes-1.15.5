@@ -445,6 +445,7 @@ func podsDifferSemantically(existing, ref *v1.Pod) bool {
 //   * if ref makes no meaningful change, but changes the pod status, returns needReconcile=true
 //   * else return all false
 //   Now, needUpdate, needGracefulDelete and needReconcile should never be both true
+// @xnile
 func checkAndUpdatePod(existing, ref *v1.Pod) (needUpdate, needReconcile, needGracefulDelete bool) {
 
 	// 1. this is a reconcile

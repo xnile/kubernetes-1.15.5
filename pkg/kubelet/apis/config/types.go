@@ -41,6 +41,7 @@ const (
 
 // ResourceChangeDetectionStrategy denotes a mode in which internal
 // managers (secret, configmap) are discovering object changes.
+// @xnile configmap,secret 更新模式
 type ResourceChangeDetectionStrategy string
 
 // Enum settings for different strategies of kubelet managers.
