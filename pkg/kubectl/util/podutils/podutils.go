@@ -29,6 +29,7 @@ import (
 // of that, there are two cases when a pod can be considered available:
 // 1. minReadySeconds == 0, or
 // 2. LastTransitionTime (is set) + minReadySeconds < current time
+// @xnile IsPodAvailable 静默期
 func IsPodAvailable(pod *corev1.Pod, minReadySeconds int32, now metav1.Time) bool {
 	if !IsPodReady(pod) {
 		return false

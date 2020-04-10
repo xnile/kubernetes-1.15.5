@@ -70,7 +70,9 @@ func (dc *DeploymentController) sync(d *apps.Deployment, rsList []*apps.ReplicaS
 // checkPausedConditions checks if the given deployment is paused or not and adds an appropriate condition.
 // These conditions are needed so that we won't accidentally report lack of progress for resumed deployments
 // that were paused for longer than progressDeadlineSeconds.
+// @xnile
 func (dc *DeploymentController) checkPausedConditions(d *apps.Deployment) error {
+	// @xnile 是否配置了 .spec.progressDeadlineSeconds
 	if !deploymentutil.HasProgressDeadline(d) {
 		return nil
 	}
@@ -83,10 +85,12 @@ func (dc *DeploymentController) checkPausedConditions(d *apps.Deployment) error 
 
 	needsUpdate := false
 	if d.Spec.Paused && !pausedCondExists {
+		// @xnile Type=Progressing,Status=Unknown,Reason=DeploymentPaused
 		condition := deploymentutil.NewDeploymentCondition(apps.DeploymentProgressing, v1.ConditionUnknown, deploymentutil.PausedDeployReason, "Deployment is paused")
 		deploymentutil.SetDeploymentCondition(&d.Status, *condition)
 		needsUpdate = true
 	} else if !d.Spec.Paused && pausedCondExists {
+		// @xnile Type=Progressing,Status=Unknown,Reason=DeploymentResumed
 		condition := deploymentutil.NewDeploymentCondition(apps.DeploymentProgressing, v1.ConditionUnknown, deploymentutil.ResumedDeployReason, "Deployment is resumed")
 		deploymentutil.SetDeploymentCondition(&d.Status, *condition)
 		needsUpdate = true
@@ -112,10 +116,12 @@ func (dc *DeploymentController) checkPausedConditions(d *apps.Deployment) error 
 //
 // Note that currently the deployment controller is using caches to avoid querying the server for reads.
 // This may lead to stale reads of replica sets, thus incorrect deployment status.
+// @xnile 获取deployment对应的rs
 func (dc *DeploymentController) getAllReplicaSetsAndSyncRevision(d *apps.Deployment, rsList []*apps.ReplicaSet, createIfNotExisted bool) (*apps.ReplicaSet, []*apps.ReplicaSet, error) {
 	_, allOldRSs := deploymentutil.FindOldReplicaSets(d, rsList)
 
 	// Get new replica set with the updated revision number
+	// @xnile 关键
 	newRS, err := dc.getNewReplicaSet(d, rsList, allOldRSs, createIfNotExisted)
 	if err != nil {
 		return nil, nil, err

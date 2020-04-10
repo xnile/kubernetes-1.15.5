@@ -99,6 +99,7 @@ func calculateStatus(rs *apps.ReplicaSet, filteredPods []*v1.Pod, manageReplicas
 		}
 		if podutil.IsPodReady(pod) {
 			readyReplicasCount++
+			//@xnile IsPodAvailable
 			if podutil.IsPodAvailable(pod, rs.Spec.MinReadySeconds, metav1.Now()) {
 				availableReplicasCount++
 			}

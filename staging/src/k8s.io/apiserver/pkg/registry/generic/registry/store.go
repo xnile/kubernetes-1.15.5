@@ -935,6 +935,7 @@ func (e *Store) Delete(ctx context.Context, name string, deleteValidation rest.V
 	}
 
 	// !deleteImmediately covers all cases where err != nil. We keep both to be future-proof.
+	// @xnile 如果是优雅删除则退出
 	if !deleteImmediately || err != nil {
 		return out, false, err
 	}

@@ -152,6 +152,7 @@ func (dc *DeploymentController) Run(workers int, stopCh <-chan struct{}) {
 	klog.Infof("Starting deployment controller")
 	defer klog.Infof("Shutting down deployment controller")
 
+	// @xnile 等待informer cache同步完成
 	if !controller.WaitForCacheSync("deployment", stopCh, dc.dListerSynced, dc.rsListerSynced, dc.podListerSynced) {
 		return
 	}
@@ -494,6 +495,7 @@ func (dc *DeploymentController) handleErr(err error, key interface{}) {
 // getReplicaSetsForDeployment uses ControllerRefManager to reconcile
 // ControllerRef by adopting and orphaning.
 // It returns the list of ReplicaSets that this Deployment should manage.
+// @xnile 返回属于Deployment管理的rs
 func (dc *DeploymentController) getReplicaSetsForDeployment(d *apps.Deployment) ([]*apps.ReplicaSet, error) {
 	// List all ReplicaSets to find those we own but that no longer match our
 	// selector. They will be orphaned by ClaimReplicaSets().
@@ -579,6 +581,7 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 
 	// Deep-copy otherwise we are mutating our cache.
 	// TODO: Deep-copy only when needed.
+	// @xnile Deep-copy 每一次syncloop独立,每个goroutine独立
 	d := deployment.DeepCopy()
 
 	everything := metav1.LabelSelector{}
@@ -593,6 +596,7 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 
 	// List ReplicaSets owned by this Deployment, while reconciling ControllerRef
 	// through adoption/orphaning.
+	// @xnile 获取Deployment关联的rs
 	rsList, err := dc.getReplicaSetsForDeployment(d)
 	if err != nil {
 		return err
@@ -607,17 +611,19 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 		return err
 	}
 
+	// @xnile Deployment是否已经被删除，只有删除策略为“Foreground”时才会出现
 	if d.DeletionTimestamp != nil {
 		return dc.syncStatusOnly(d, rsList)
+		// @xnile 后续GC Controller会负责清理rs、pods
 	}
 
 	// Update deployment conditions with an Unknown condition when pausing/resuming
 	// a deployment. In this way, we can be sure that we won't timeout when a user
 	// resumes a Deployment with a set progressDeadlineSeconds.
+	// @xnile 是否处于暂停状态,更新Conditions,目的是在暂停的这段时间内不记时，防止触发spec.progressDeadlineSeconds,
 	if err = dc.checkPausedConditions(d); err != nil {
 		return err
 	}
-
 	if d.Spec.Paused {
 		return dc.sync(d, rsList)
 	}
@@ -625,10 +631,13 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 	// rollback is not re-entrant in case the underlying replica sets are updated with a new
 	// revision so we should ensure that we won't proceed to update replica sets until we
 	// make sure that the deployment has cleaned up its rollback spec in subsequent enqueues.
+	// @xnile .spec.rollbackTo 回退到历史版本，通过yaml文件指定或使用kubectl rollout undo命令
 	if getRollbackTo(d) != nil {
 		return dc.rollback(d, rsList)
 	}
 
+	// @xnile 是否需要scale
+	// @xnile 如果更新的同时并修改了replicas,先scale完了再Rolling Update
 	scalingEvent, err := dc.isScalingEvent(d, rsList)
 	if err != nil {
 		return err
@@ -637,10 +646,12 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 		return dc.sync(d, rsList)
 	}
 
+	// @xnile 更新
 	switch d.Spec.Strategy.Type {
 	case apps.RecreateDeploymentStrategyType:
 		return dc.rolloutRecreate(d, rsList, podMap)
 	case apps.RollingUpdateDeploymentStrategyType:
+		// @xnile 滚动更新
 		return dc.rolloutRolling(d, rsList)
 	}
 	return fmt.Errorf("unexpected deployment strategy type: %s", d.Spec.Strategy.Type)

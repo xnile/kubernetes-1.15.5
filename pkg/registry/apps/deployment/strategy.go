@@ -49,6 +49,7 @@ var Strategy = deploymentStrategy{legacyscheme.Scheme, names.SimpleNameGenerator
 
 // DefaultGarbageCollectionPolicy returns OrphanDependents for extensions/v1beta1, apps/v1beta1, and apps/v1beta2 for backwards compatibility,
 // and DeleteDependents for all other versions.
+// @xnile 默认删除策略
 func (deploymentStrategy) DefaultGarbageCollectionPolicy(ctx context.Context) rest.GarbageCollectionPolicy {
 	var groupVersion schema.GroupVersion
 	if requestInfo, found := genericapirequest.RequestInfoFrom(ctx); found {

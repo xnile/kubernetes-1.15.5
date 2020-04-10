@@ -643,6 +643,7 @@ func EqualIgnoreHash(template1, template2 *v1.PodTemplateSpec) bool {
 func FindNewReplicaSet(deployment *apps.Deployment, rsList []*apps.ReplicaSet) *apps.ReplicaSet {
 	sort.Sort(controller.ReplicaSetsByCreationTimestamp(rsList))
 	for i := range rsList {
+		// @xnile 通过对比 Spec.Template
 		if EqualIgnoreHash(&rsList[i].Spec.Template, &deployment.Spec.Template) {
 			// In rare cases, such as after cluster upgrades, Deployment may end up with
 			// having more than one new ReplicaSets that have the same template as its template,
