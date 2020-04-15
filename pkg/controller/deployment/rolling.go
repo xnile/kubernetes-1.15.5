@@ -28,7 +28,9 @@ import (
 )
 
 // rolloutRolling implements the logic for rolling a new replica set.
+// @xnile 
 func (dc *DeploymentController) rolloutRolling(d *apps.Deployment, rsList []*apps.ReplicaSet) error {
+	// @xnile 获取新旧rs，如果是首次rolling out因为new rs还不存在则会创建new rs
 	newRS, oldRSs, err := dc.getAllReplicaSetsAndSyncRevision(d, rsList, true)
 	if err != nil {
 		return err
@@ -55,7 +57,10 @@ func (dc *DeploymentController) rolloutRolling(d *apps.Deployment, rsList []*app
 		return dc.syncRolloutStatus(allRSs, newRS, d)
 	}
 
+	// @xnile 如果更新已经完成，则清理历史rs
+	// @xnile TODO 为什么还要先判断是否已经完成？不scale up也不scale down的情况是？
 	if deploymentutil.DeploymentComplete(d, &d.Status) {
+		// @xnile 清理历史rs, 只保留最多 d.Spec.RevisionHistoryLimit 个历史版本
 		if err := dc.cleanupDeployment(oldRSs, d); err != nil {
 			return err
 		}
@@ -70,15 +75,18 @@ func (dc *DeploymentController) reconcileNewReplicaSet(allRSs []*apps.ReplicaSet
 		// Scaling not required.
 		return false, nil
 	}
+	// @xnile TODO 什么情况下会出现?
 	if *(newRS.Spec.Replicas) > *(deployment.Spec.Replicas) {
 		// Scale down.
 		scaled, _, err := dc.scaleReplicaSetAndRecordEvent(newRS, *(deployment.Spec.Replicas), deployment)
 		return scaled, err
 	}
+	// @xnile 获取能scale up的数量
 	newReplicasCount, err := deploymentutil.NewRSNewReplicas(deployment, allRSs, newRS)
 	if err != nil {
 		return false, err
 	}
+	// @xnile 调用api更新rs的replicas,然后rs controller会负责pod的创建
 	scaled, _, err := dc.scaleReplicaSetAndRecordEvent(newRS, newReplicasCount, deployment)
 	return scaled, err
 }
@@ -126,6 +134,9 @@ func (dc *DeploymentController) reconcileOldReplicaSets(allRSs []*apps.ReplicaSe
 	// allow the new replica set to be scaled up by 5.
 	minAvailable := *(deployment.Spec.Replicas) - maxUnavailable
 	newRSUnavailablePodCount := *(newRS.Spec.Replicas) - newRS.Status.AvailableReplicas
+	// @xnile 这里为什么不用readyPodCount - minAvailable
+	// @xnile allPodsCount、minAvailable 两值都是静态的，但newRSUnavailablePodCount是动态的。
+	// @xnile 考虑一种情况，滚动更新后新创建的Pod因为某种原因一直不能ready。这时不能再scale down，这时我查找到原因了修复了，再滚动一次，发现readyPodCount - minAvailable=0 会卡住
 	maxScaledDown := allPodsCount - minAvailable - newRSUnavailablePodCount
 	if maxScaledDown <= 0 {
 		return false, nil
@@ -196,12 +207,14 @@ func (dc *DeploymentController) scaleDownOldReplicaSetsForRollingUpdate(allRSs [
 	minAvailable := *(deployment.Spec.Replicas) - maxUnavailable
 	// Find the number of available pods.
 	availablePodCount := deploymentutil.GetAvailableReplicaCountForReplicaSets(allRSs)
+	// @xnile
 	if availablePodCount <= minAvailable {
 		// Cannot scale down.
 		return 0, nil
 	}
 	klog.V(4).Infof("Found %d available pods in deployment %s, scaling down old RSes", availablePodCount, deployment.Name)
 
+	// @xnile 先Scale down最早创建的rs,
 	sort.Sort(controller.ReplicaSetsByCreationTimestamp(oldRSs))
 
 	totalScaledDown := int32(0)

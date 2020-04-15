@@ -51,6 +51,7 @@ func NormalizeReduce(maxPriority int, reverse bool) PriorityReduceFunction {
 		for i := range result {
 			score := result[i].Score
 
+			// @xnile 分值乘以最大优先级是maxPriority = 10，除以最大值赋值给分值 这里是做了归一化处理;
 			score = maxPriority * score / maxCount
 			if reverse {
 				score = maxPriority - score

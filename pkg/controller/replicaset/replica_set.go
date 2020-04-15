@@ -681,6 +681,7 @@ func slowStartBatch(count int, initialBatchSize int, fn func() error) (int, erro
 	return successes, nil
 }
 
+// @xnile 筛选需要删除的pod
 func getPodsToDelete(filteredPods []*v1.Pod, diff int) []*v1.Pod {
 	// No need to sort pods if we are about to delete all of them.
 	// diff will always be <= len(filteredPods), so not need to handle > case.
@@ -688,6 +689,7 @@ func getPodsToDelete(filteredPods []*v1.Pod, diff int) []*v1.Pod {
 		// Sort the pods in the order such that not-ready < ready, unscheduled
 		// < scheduled, and pending < running. This ensures that we delete pods
 		// in the earlier stages whenever possible.
+		// @xnile 尽可能删除较早的pod
 		sort.Sort(controller.ActivePods(filteredPods))
 	}
 	return filteredPods[:diff]

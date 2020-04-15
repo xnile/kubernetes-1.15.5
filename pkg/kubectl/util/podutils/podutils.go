@@ -122,6 +122,7 @@ func (s ByLogging) Less(i, j int) bool {
 }
 
 // ActivePods type allows custom sorting of pods so a controller can pick the best ones to delete.
+// @xnile 删除时，pod筛选
 type ActivePods []*corev1.Pod
 
 func (s ActivePods) Len() int      { return len(s) }

@@ -545,6 +545,7 @@ func (nc *Controller) doNoScheduleTaintingPass(nodeName string) error {
 		}
 	}
 	if node.Spec.Unschedulable {
+		// @xnile 自动加上taint
 		// If unschedulable, append related taint.
 		taints = append(taints, v1.Taint{
 			Key:    schedulerapi.TaintNodeUnschedulable,

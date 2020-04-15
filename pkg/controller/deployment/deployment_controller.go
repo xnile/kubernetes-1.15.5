@@ -570,6 +570,8 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 	if err != nil {
 		return err
 	}
+
+	//@xnile 从informer cache中获取deployment对象
 	deployment, err := dc.dLister.Deployments(namespace).Get(name)
 	if errors.IsNotFound(err) {
 		klog.V(2).Infof("Deployment %v has been deleted", key)
@@ -596,7 +598,7 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 
 	// List ReplicaSets owned by this Deployment, while reconciling ControllerRef
 	// through adoption/orphaning.
-	// @xnile 获取Deployment关联的rs
+	// @xnile 获取Deployment管理的rs
 	rsList, err := dc.getReplicaSetsForDeployment(d)
 	if err != nil {
 		return err
@@ -611,7 +613,7 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 		return err
 	}
 
-	// @xnile Deployment是否已经被删除，只有删除策略为“Foreground”时才会出现
+	// @xnile 判断deployment是否已经被删除，只有当删除策略为“Foreground”时才会出现
 	if d.DeletionTimestamp != nil {
 		return dc.syncStatusOnly(d, rsList)
 		// @xnile 后续GC Controller会负责清理rs、pods
@@ -631,7 +633,8 @@ func (dc *DeploymentController) syncDeployment(key string) error {
 	// rollback is not re-entrant in case the underlying replica sets are updated with a new
 	// revision so we should ensure that we won't proceed to update replica sets until we
 	// make sure that the deployment has cleaned up its rollback spec in subsequent enqueues.
-	// @xnile .spec.rollbackTo 回退到历史版本，通过yaml文件指定或使用kubectl rollout undo命令
+    // @xnile 通过检测 .spec.rollbackTo 信息判断是否需要回退
+    // @xnile 通过yaml文件指定或使用kubectl rollout undo命令
 	if getRollbackTo(d) != nil {
 		return dc.rollback(d, rsList)
 	}

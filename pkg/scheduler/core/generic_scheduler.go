@@ -125,12 +125,14 @@ func (f *FitError) Error() string {
 // ScheduleAlgorithm is an interface implemented by things that know how to schedule pods
 // onto machines.
 // TODO: Rename this type.
+// @xnile 接口
 type ScheduleAlgorithm interface {
 	Schedule(*v1.Pod, algorithm.NodeLister) (scheduleResult ScheduleResult, err error)
 	// Preempt receives scheduling errors for a pod and tries to create room for
 	// the pod by preempting lower priority pods if possible.
 	// It returns the node where preemption happened, a list of preempted pods, a
 	// list of pods whose nominated node name should be removed, and error if any.
+	// @xnile 抢占调度
 	Preempt(*v1.Pod, algorithm.NodeLister, error) (selectedNode *v1.Node, preemptedPods []*v1.Pod, cleanupNominatedPods []*v1.Pod, err error)
 	// Predicates() returns a pointer to a map of predicate functions. This is
 	// exposed for testing.
@@ -181,6 +183,7 @@ func (g *genericScheduler) snapshot() error {
 // Schedule tries to schedule the given pod to one of the nodes in the node list.
 // If it succeeds, it will return the name of the node.
 // If it fails, it will return a FitError error with reasons.
+// @xnile pod 调度
 func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister) (result ScheduleResult, err error) {
 	trace := utiltrace.New(fmt.Sprintf("Scheduling %s/%s", pod.Namespace, pod.Name))
 	defer trace.LogIfLong(100 * time.Millisecond)
@@ -203,6 +206,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 
 	trace.Step("Computing predicates")
 	startPredicateEvalTime := time.Now()
+	// @xnile 预选
 	filteredNodes, failedPredicateMap, err := g.findNodesThatFit(pod, nodes)
 	if err != nil {
 		return result, err
@@ -233,6 +237,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 		}, nil
 	}
 
+	// @xnile 优选
 	metaPrioritiesInterface := g.priorityMetaProducer(pod, g.nodeInfoSnapshot.NodeInfoMap)
 	priorityList, err := PrioritizeNodes(pod, g.nodeInfoSnapshot.NodeInfoMap, metaPrioritiesInterface, g.prioritizers, filteredNodes, g.extenders)
 	if err != nil {
@@ -283,6 +288,7 @@ func findMaxScores(priorityList schedulerapi.HostPriorityList) []int {
 
 // selectHost takes a prioritized list of nodes and then picks one
 // in a round-robin manner from the nodes that had the highest score.
+// 获取分数最高的Node。如果多个Node分数相同，则使用轮询的方式得到最终的Node。
 func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList) (string, error) {
 	if len(priorityList) == 0 {
 		return "", fmt.Errorf("empty priorityList")
@@ -664,6 +670,9 @@ func podFitsOnNode(
 // Each priority function can also have its own weight
 // The node scores returned by the priority function are multiplied by the weights to get weighted scores
 // All scores are finally combined (added) to get the total weighted scores of all nodes
+// @xnile 优选
+// 预选完成之后会得到一个Node的数组。如果预选合适的节点数大于1，则需要调用优选算法根据评分获取最优的节点。
+// 优选算法调用的接口是PrioritizeNodes，使用与预选类似的多任务同步调用方式，采用MapReduce的思想，Map根据不同的优选算法获取对某一Node的值，根据Reduce统计最终的结果。
 func PrioritizeNodes(
 	pod *v1.Pod,
 	nodeNameToInfo map[string]*schedulernodeinfo.NodeInfo,
@@ -674,6 +683,7 @@ func PrioritizeNodes(
 ) (schedulerapi.HostPriorityList, error) {
 	// If no priority configs are provided, then the EqualPriority function is applied
 	// This is required to generate the priority list in the required format
+	// @xnile 检查是否有自定义配置
 	if len(priorityConfigs) == 0 && len(extenders) == 0 {
 		result := make(schedulerapi.HostPriorityList, 0, len(nodes))
 		for i := range nodes {
@@ -717,6 +727,7 @@ func PrioritizeNodes(
 		}
 	}
 
+	// @xnile 启动 16 个 goroutine 并发为 node 打分
 	workqueue.ParallelizeUntil(context.TODO(), 16, len(nodes), func(index int) {
 		nodeInfo := nodeNameToInfo[nodes[index].Name]
 		for i := range priorityConfigs {
@@ -733,6 +744,7 @@ func PrioritizeNodes(
 		}
 	})
 
+	// @xnile
 	for i := range priorityConfigs {
 		if priorityConfigs[i].Reduce == nil {
 			continue
