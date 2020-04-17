@@ -712,6 +712,7 @@ func PrioritizeNodes(
 	// DEPRECATED: we can remove this when all priorityConfigs implement the
 	// Map-Reduce pattern.
 	for i := range priorityConfigs {
+		// @xnile 没有定义MapReduceFunction
 		if priorityConfigs[i].Function != nil {
 			wg.Add(1)
 			go func(index int) {
@@ -723,6 +724,7 @@ func PrioritizeNodes(
 				}
 			}(i)
 		} else {
+			// @xnile 定义了MapReduceFunction
 			results[i] = make(schedulerapi.HostPriorityList, len(nodes))
 		}
 	}
@@ -736,6 +738,9 @@ func PrioritizeNodes(
 			}
 
 			var err error
+			// @xnile Map
+			//					node01
+			// nodeaffinity      score
 			results[i][index], err = priorityConfigs[i].Map(pod, meta, nodeInfo)
 			if err != nil {
 				appendError(err)
@@ -744,7 +749,6 @@ func PrioritizeNodes(
 		}
 	})
 
-	// @xnile
 	for i := range priorityConfigs {
 		if priorityConfigs[i].Reduce == nil {
 			continue
@@ -752,6 +756,7 @@ func PrioritizeNodes(
 		wg.Add(1)
 		go func(index int) {
 			defer wg.Done()
+			// @xnile Reduce
 			if err := priorityConfigs[index].Reduce(pod, meta, nodeNameToInfo, results[index]); err != nil {
 				appendError(err)
 			}
@@ -774,10 +779,12 @@ func PrioritizeNodes(
 	for i := range nodes {
 		result = append(result, schedulerapi.HostPriority{Host: nodes[i].Name, Score: 0})
 		for j := range priorityConfigs {
+			// @xnile 节点的总分=每项具体得分相加
 			result[i].Score += results[j][i].Score * priorityConfigs[j].Weight
 		}
 	}
 
+	// @xnile 扩展
 	if len(extenders) != 0 && nodes != nil {
 		combinedScores := make(map[string]int, len(nodeNameToInfo))
 		for i := range extenders {

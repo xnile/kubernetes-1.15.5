@@ -101,6 +101,7 @@ type RESTMapping struct {
 	Scope RESTScope
 }
 
+// @xnile 将GVK映射到GVR
 // RESTMapper allows clients to map resources to kind, and map kind and version
 // to interfaces for manipulating those objects. It is primarily intended for
 // consumers of Kubernetes compatible REST APIs as defined in docs/devel/api-conventions.md.

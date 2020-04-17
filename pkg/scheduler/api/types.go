@@ -328,6 +328,7 @@ type ExtenderBindingResult struct {
 }
 
 // HostPriority represents the priority of scheduling to a particular host, higher priority is better.
+// @xnile 主机优先级
 type HostPriority struct {
 	// Name of the host
 	Host string
