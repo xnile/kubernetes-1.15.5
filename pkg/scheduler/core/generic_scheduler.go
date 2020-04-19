@@ -272,11 +272,13 @@ func (g *genericScheduler) Predicates() map[string]predicates.FitPredicate {
 
 // findMaxScores returns the indexes of nodes in the "priorityList" that has the highest "Score".
 func findMaxScores(priorityList schedulerapi.HostPriorityList) []int {
+	// @xnile 容量很讲究
 	maxScoreIndexes := make([]int, 0, len(priorityList)/2)
 	maxScore := priorityList[0].Score
 	for i, hp := range priorityList {
 		if hp.Score > maxScore {
 			maxScore = hp.Score
+			// @xnile 长度归零
 			maxScoreIndexes = maxScoreIndexes[:0]
 			maxScoreIndexes = append(maxScoreIndexes, i)
 		} else if hp.Score == maxScore {
@@ -707,6 +709,7 @@ func PrioritizeNodes(
 		errs = append(errs, err)
 	}
 
+	// @xnile 2维切片
 	results := make([]schedulerapi.HostPriorityList, len(priorityConfigs), len(priorityConfigs))
 
 	// DEPRECATED: we can remove this when all priorityConfigs implement the
@@ -718,13 +721,14 @@ func PrioritizeNodes(
 			go func(index int) {
 				defer wg.Done()
 				var err error
+				// @xnile 
+				// type PriorityFunction func(pod *v1.Pod, nodeNameToInfo map[string]*schedulernodeinfo.NodeInfo, nodes []*v1.Node) (schedulerapi.HostPriorityList, error)
 				results[index], err = priorityConfigs[index].Function(pod, nodeNameToInfo, nodes)
 				if err != nil {
 					appendError(err)
 				}
 			}(i)
 		} else {
-			// @xnile 定义了MapReduceFunction
 			results[i] = make(schedulerapi.HostPriorityList, len(nodes))
 		}
 	}
@@ -732,6 +736,7 @@ func PrioritizeNodes(
 	// @xnile 启动 16 个 goroutine 并发为 node 打分
 	workqueue.ParallelizeUntil(context.TODO(), 16, len(nodes), func(index int) {
 		nodeInfo := nodeNameToInfo[nodes[index].Name]
+		// @xnile 为该节点的每一项打分
 		for i := range priorityConfigs {
 			if priorityConfigs[i].Function != nil {
 				continue
@@ -749,6 +754,7 @@ func PrioritizeNodes(
 		}
 	})
 
+	// @xnile Reduce操作得到每个节点的总分
 	for i := range priorityConfigs {
 		if priorityConfigs[i].Reduce == nil {
 			continue

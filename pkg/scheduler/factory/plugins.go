@@ -73,6 +73,7 @@ type PriorityFunctionFactory2 func(PluginFactoryArgs) (priorities.PriorityMapFun
 type PriorityConfigFactory struct {
 	Function          PriorityFunctionFactory
 	MapReduceFunction PriorityFunctionFactory2
+	// @xnile 权重
 	Weight            int
 }
 
