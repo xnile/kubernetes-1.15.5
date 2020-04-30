@@ -281,7 +281,7 @@ func (sched *Scheduler) recordSchedulingFailure(pod *v1.Pod, err error, reason s
 
 // schedule implements the scheduling algorithm and returns the suggested result(host,
 // evaluated nodes number,feasible nodes number).
-// @xnile schedule 根据调度算法，得到待调度的节点
+// @xnile schedule 根据算法选Node
 func (sched *Scheduler) schedule(pod *v1.Pod) (core.ScheduleResult, error) {
 	result, err := sched.config.Algorithm.Schedule(pod, sched.config.NodeLister)
 	if err != nil {
@@ -414,6 +414,7 @@ func (sched *Scheduler) assume(assumed *v1.Pod, host string) error {
 
 // bind binds a pod to a given node defined in a binding object.  We expect this to run asynchronously, so we
 // handle binding metrics internally.
+// @xnile 执行绑定操作
 func (sched *Scheduler) bind(assumed *v1.Pod, b *v1.Binding) error {
 	bindingStart := time.Now()
 	// If binding succeeded then PodScheduled condition will be updated in apiserver so that
@@ -461,7 +462,7 @@ func (sched *Scheduler) scheduleOne() {
 	// Synchronously attempt to find a fit for the pod.
 	start := time.Now()
 	pluginContext := framework.NewPluginContext()
-	// @xnile 调度 通过调度算法，得到待调度的节点
+	// @xnile 通过算法选节点
 	scheduleResult, err := sched.schedule(pod)
 	if err != nil {
 		// schedule() may have failed because the pod would not fit on any host, so we try to

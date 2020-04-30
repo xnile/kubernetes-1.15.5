@@ -33,6 +33,7 @@ type PriorityMetadataFactory struct {
 }
 
 // NewPriorityMetadataFactory creates a PriorityMetadataFactory.
+// @xnile 工厂函数
 func NewPriorityMetadataFactory(serviceLister algorithm.ServiceLister, controllerLister algorithm.ControllerLister, replicaSetLister algorithm.ReplicaSetLister, statefulSetLister algorithm.StatefulSetLister) PriorityMetadataProducer {
 	factory := &PriorityMetadataFactory{
 		serviceLister:     serviceLister,
@@ -56,6 +57,7 @@ type priorityMetadata struct {
 }
 
 // PriorityMetadata is a PriorityMetadataProducer.  Node info can be nil.
+// @xnile 元数据
 func (pmf *PriorityMetadataFactory) PriorityMetadata(pod *v1.Pod, nodeNameToInfo map[string]*schedulernodeinfo.NodeInfo) interface{} {
 	// If we cannot compute metadata, just return nil
 	if pod == nil {

@@ -27,6 +27,7 @@ func init() {
 	// Register functions that extract metadata used by priorities computations.
 	factory.RegisterPriorityMetadataProducerFactory(
 		func(args factory.PluginFactoryArgs) priorities.PriorityMetadataProducer {
+			// @xnile
 			return priorities.NewPriorityMetadataFactory(args.ServiceLister, args.ControllerLister, args.ReplicaSetLister, args.StatefulSetLister)
 		})
 

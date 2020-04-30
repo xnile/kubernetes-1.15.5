@@ -227,6 +227,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	trace.Step("Prioritizing")
 	startPriorityEvalTime := time.Now()
 	// When only one node after predicate, just use it.
+	// @xnile 如果只有一个匹配节点则略过优选过程直接返回
 	if len(filteredNodes) == 1 {
 		metrics.SchedulingAlgorithmPriorityEvaluationDuration.Observe(metrics.SinceInSeconds(startPriorityEvalTime))
 		metrics.DeprecatedSchedulingAlgorithmPriorityEvaluationDuration.Observe(metrics.SinceInMicroseconds(startPriorityEvalTime))
@@ -238,6 +239,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	}
 
 	// @xnile 优选
+	// @xnile 获取所有的调度策略
 	metaPrioritiesInterface := g.priorityMetaProducer(pod, g.nodeInfoSnapshot.NodeInfoMap)
 	priorityList, err := PrioritizeNodes(pod, g.nodeInfoSnapshot.NodeInfoMap, metaPrioritiesInterface, g.prioritizers, filteredNodes, g.extenders)
 	if err != nil {
@@ -250,6 +252,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 
 	trace.Step("Selecting host")
 
+	// @xnile 选取score最高的节点，如果有多个，随机选择一个
 	host, err := g.selectHost(priorityList)
 	return ScheduleResult{
 		SuggestedHost:  host,
@@ -271,8 +274,9 @@ func (g *genericScheduler) Predicates() map[string]predicates.FitPredicate {
 }
 
 // findMaxScores returns the indexes of nodes in the "priorityList" that has the highest "Score".
+// @xnile 返回[]{1,2,3,4}
 func findMaxScores(priorityList schedulerapi.HostPriorityList) []int {
-	// @xnile 容量很讲究
+	// @xnile 容量很讲究,学习
 	maxScoreIndexes := make([]int, 0, len(priorityList)/2)
 	maxScore := priorityList[0].Score
 	for i, hp := range priorityList {
@@ -685,7 +689,6 @@ func PrioritizeNodes(
 ) (schedulerapi.HostPriorityList, error) {
 	// If no priority configs are provided, then the EqualPriority function is applied
 	// This is required to generate the priority list in the required format
-	// @xnile 检查是否有自定义配置
 	if len(priorityConfigs) == 0 && len(extenders) == 0 {
 		result := make(schedulerapi.HostPriorityList, 0, len(nodes))
 		for i := range nodes {
@@ -721,7 +724,7 @@ func PrioritizeNodes(
 			go func(index int) {
 				defer wg.Done()
 				var err error
-				// @xnile 
+				// @xnile
 				// type PriorityFunction func(pod *v1.Pod, nodeNameToInfo map[string]*schedulernodeinfo.NodeInfo, nodes []*v1.Node) (schedulerapi.HostPriorityList, error)
 				results[index], err = priorityConfigs[index].Function(pod, nodeNameToInfo, nodes)
 				if err != nil {
